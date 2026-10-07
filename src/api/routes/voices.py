@@ -59,8 +59,14 @@ async def register_voice_clone(
         tmp_path = tmp.name
 
     try:
-        info = sf.info(tmp_path)
-        duration = info.duration
+        try:
+            info = sf.info(tmp_path)
+            duration = info.duration
+        except Exception:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid or unreadable audio file. Please provide a valid WAV, MP3, or FLAC audio file."
+            )
 
         if duration < MIN_DURATION_SECONDS:
             raise HTTPException(

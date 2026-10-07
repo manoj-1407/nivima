@@ -84,7 +84,7 @@ async def submit_correction(
         "chunk_index": req.chunk_index,
         "target_language": req.target_language,
         "correction_type": req.correction_type,
-        "original_translation": chunk.translations.get(req.target_language, ""),
+        "original_translation": (chunk.translations or {}).get(req.target_language, ""),
         "corrected_text": req.corrected_text,
         "timing_offset_ms": req.timing_offset_ms,
         "notes": req.notes,
@@ -212,7 +212,7 @@ async def _resynthesize_segment(
             return
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            text_to_synthesize = corrected_text or chunk.translations.get(target_language, "")
+            text_to_synthesize = corrected_text or (chunk.translations or {}).get(target_language, "")
             if not text_to_synthesize:
                 log.warning("no_text_to_resynthesize", chunk_id=chunk_id)
                 return

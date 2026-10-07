@@ -97,6 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           { id: 'studio', label: 'Dubbing Studio' },
           { id: 'phonemes', label: 'Retroflex Viseme Lab' },
           { id: 'speed', label: 'Speed-Invariant 2×' },
+          { id: 'patent', label: 'Patent & IP' },
           { id: 'qc', label: 'QC Gatekeeper' },
           { id: 'api', label: 'API & Python SDK' }
         ].map((item) => (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FastForward, CheckCircle, XCircle, Code2, Copy, Check } from 'lucide-react';
+import { MeshVisualizerCanvas } from './MeshVisualizerCanvas.tsx';
 
 export const SpeedInvariantSection = () => {
   const [copied, setCopied] = useState<boolean>(false);
@@ -12,6 +13,7 @@ export const SpeedInvariantSection = () => {
   "base_fps": 30.0,
   "duration_seconds": 272.4,
   "renderer": "3dmm_playback_adaptive",
+  "continuous_spline_engine": "hermite_c1",
   "segments": [
     {
       "start_ms": 1240,
@@ -22,7 +24,12 @@ export const SpeedInvariantSection = () => {
         "jaw_open": 0.38,
         "lip_pressor": 0.15,
         "cheek_raiser": 0.65,
-        "tongue_curl": 0.95
+        "tongue_curl": 0.95,
+        "buccal_tension": 0.70
+      },
+      "tangents": {
+        "in_velocity": [0.12, 0.05, 0.40, 0.85],
+        "out_velocity": [-0.10, -0.02, -0.35, -0.80]
       },
       "time_scale_invariant": true
     }
@@ -63,6 +70,11 @@ export const SpeedInvariantSection = () => {
         <p style={{ color: 'var(--text-muted)', maxWidth: 700, margin: '0 auto', fontSize: '15px', lineHeight: 1.6 }}>
           <strong>73% of Indian students</strong> watch educational and technical tutorials at 1.5×, 1.75×, or 2.0×. Existing video reanimation models bake lips into static 24fps MP4s. When the video player accelerates playback, phoneme-viseme coherence breaks down.
         </p>
+      </div>
+
+      {/* Embedded Live 3DMM Continuous Spline Canvas Simulator */}
+      <div style={{ marginBottom: 36 }}>
+        <MeshVisualizerCanvas initialSpeed={1.75} />
       </div>
 
       <div

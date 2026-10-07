@@ -5,6 +5,7 @@ import { Hero } from './components/Hero.tsx';
 import { DubbingStudio } from './components/DubbingStudio.tsx';
 import { PhonemeVisemeLab } from './components/PhonemeVisemeLab.tsx';
 import { SpeedInvariantSection } from './components/SpeedInvariantSection.tsx';
+import { PatentSection } from './components/PatentSection.tsx';
 import { QCInspector } from './components/QCInspector.tsx';
 import { ApiSection } from './components/ApiSection.tsx';
 
@@ -32,7 +33,7 @@ function App() {
 
   // Track active section on scroll
   useEffect(() => {
-    const sections = ['hero', 'studio', 'phonemes', 'speed', 'qc', 'api'];
+    const sections = ['hero', 'studio', 'phonemes', 'speed', 'patent', 'qc', 'api'];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -117,6 +118,16 @@ function App() {
         }}
       />
 
+      <PatentSection />
+
+      <div
+        style={{
+          height: 1,
+          background: 'linear-gradient(to right, transparent, var(--border-subtle), transparent)',
+          margin: '0 60px'
+        }}
+      />
+
       <QCInspector />
 
       <div
@@ -133,7 +144,7 @@ function App() {
       <footer
         style={{
           borderTop: '1px solid var(--border-subtle)',
-          padding: '32px 40px',
+          padding: '36px 40px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -143,16 +154,16 @@ function App() {
         }}
       >
         <div>
-          <div style={{ fontSize: '16px', fontWeight: 800, marginBottom: 4 }}>
+          <div style={{ fontSize: '18px', fontWeight: 800, marginBottom: 4 }}>
             <span className="text-gradient-neural">Nivima</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-faint)' }}>
-            Neural Indian Video Interface & Multilingual Animation Platform
+            Neural Indian Video Interface & Multilingual Animation Platform • Patent-Pending IP
           </div>
         </div>
         <div style={{ fontSize: '12px', color: 'var(--text-faint)', textAlign: 'right' }}>
-          <div>Research-stage software. Not for production use.</div>
-          <div>© 2026 Manoj • MIT License</div>
+          <div>Utility Patent Application Drafted under 35 U.S.C. § 111 & Indian Patent Act 1970</div>
+          <div>© 2026 Manoj (GCET Hyderabad) • MIT Licensed Research Platform</div>
         </div>
       </footer>
     </div>
