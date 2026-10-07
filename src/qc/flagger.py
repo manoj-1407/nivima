@@ -1,8 +1,10 @@
+import uuid
+
 import structlog
 from sqlalchemy.orm import Session
-from src.storage.db import QCQueue
+
 from src.qc.scorer import QCScore
-import uuid
+from src.storage.db import QCQueue
 
 log = structlog.get_logger()
 
@@ -48,8 +50,6 @@ def flag_chunk_if_needed(
 
 
 def get_job_qc_summary(db: Session, job_id: str) -> dict:
-    from src.storage.db import Chunk
-    from sqlalchemy import func
 
     flags = db.query(QCQueue).filter(QCQueue.job_id == job_id).all()
     pending = [f for f in flags if f.reviewed_at is None]

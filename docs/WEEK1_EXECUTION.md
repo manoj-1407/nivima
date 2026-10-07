@@ -1,4 +1,4 @@
-# Week 1 Execution — VoxBridge Phase 1
+﻿# Week 1 Execution — Nivima Phase 1
 
 ## Goal By End Of Week 1
 Take a Hindi YouTube video.
@@ -10,8 +10,8 @@ No lip sync. No visual changes. Just audio. Prove the pipeline works end to end.
 ## Day 1-2: Environment + Transcription
 
 ```bash
-conda create -n voxbridge python=3.11
-conda activate voxbridge
+conda create -n nivima python=3.11
+conda activate nivima
 
 pip install faster-whisper
 pip install ffmpeg-python

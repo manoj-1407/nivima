@@ -1,10 +1,11 @@
 from celery import Celery
+
 from src.config import get_settings
 
 settings = get_settings()
 
 app = Celery(
-    "voxbridge",
+    "nivima",
     broker=settings.redis_url,
     backend=settings.redis_url,
     include=["src.worker.tasks.pipeline", "src.worker.tasks.notify"]

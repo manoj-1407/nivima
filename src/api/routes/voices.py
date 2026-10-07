@@ -1,15 +1,16 @@
 import os
-import uuid
 import tempfile
-from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
-from sqlalchemy.orm import Session
+import uuid
+from datetime import UTC, datetime
+
 import soundfile as sf
 import structlog
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from sqlalchemy.orm import Session
 
-from src.storage.db import get_db, VoiceClone, User
-from src.storage.s3 import upload_file
 from src.api.middleware.auth import get_current_user
+from src.storage.db import User, VoiceClone, get_db
+from src.storage.s3 import upload_file
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/api/v1/voices", tags=["voices"])
@@ -42,7 +43,7 @@ async def register_voice_clone(
     limit = CLONE_LIMITS.get(current_user.tier, 0)
     existing = db.query(VoiceClone).filter(
         VoiceClone.user_id == current_user.id,
-        VoiceClone.is_active == True
+        VoiceClone.is_active.is_(True)
     ).count()
 
     if existing >= limit:
@@ -83,7 +84,7 @@ async def register_voice_clone(
             display_name=display_name,
             reference_audio_path=s3_key,
             supported_languages=["hi"],
-            consent_recorded_at=datetime.now(timezone.utc),
+            consent_recorded_at=datetime.now(UTC),
             is_active=True
         )
         db.add(clone)
@@ -114,7 +115,7 @@ def list_voice_clones(
 ):
     clones = db.query(VoiceClone).filter(
         VoiceClone.user_id == current_user.id,
-        VoiceClone.is_active == True
+        VoiceClone.is_active.is_(True)
     ).all()
 
     return [

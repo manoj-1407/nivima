@@ -1,8 +1,10 @@
 <div align="center">
 
-# VoxBridge
+# Nivima
 
-**Your content. Every language. Your voice.**
+**Neural Indian Video Interface & Multilingual Animation Platform**
+
+*Your content. Every language. Your voice.*
 
 [![CI](https://github.com/manoj-1407/voxbridge/actions/workflows/ci.yml/badge.svg)](https://github.com/manoj-1407/voxbridge/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -50,8 +52,8 @@ We also define the first phoneme-viseme mapping for Dravidian retroflex consonan
 git clone https://github.com/manoj-1407/voxbridge
 cd voxbridge
 
-conda create -n voxbridge python=3.11
-conda activate voxbridge
+conda create -n nivima python=3.11
+conda activate nivima
 
 make install
 make download-models     # ~30-60 min, downloads all ML models
@@ -127,7 +129,7 @@ Assembly + delivery
 |---|---|---|
 | 1 — Audio pipeline | ✅ Complete | Working dubbed audio, full API, frontend |
 | 2 — Visual layer | ✅ Wired | Selective lip reanimation + QC system |
-| 3 — Speed-invariant playback | 🔬 Research | Animation manifest + VoxPlayer SDK |
+| 3 — Speed-invariant playback | 🔬 Research | Animation manifest + NivimaPlayer SDK |
 
 ---
 
@@ -146,7 +148,7 @@ Assembly + delivery
 | Document | Contents |
 |---|---|
 | `docs/RFC_COMPLETE.md` | All architectural decisions with rationale |
-| `docs/MASTER_PLAN.md` | Full system architecture, pipeline stages |
+| `MASTER_PLAN.md` | Full system architecture, pipeline stages |
 | `docs/PHASE1_IMPLEMENTATION.md` | Phase 1 complete implementation |
 | `docs/PHASE2_3_IMPLEMENTATION.md` | Visual layer + speed-invariant playback |
 | `docs/EXECUTION_AND_BUSINESS.md` | Timeline, fine-tuning guide, business model |

@@ -1,11 +1,10 @@
-import pytest
 import os
+import tempfile
+
 import cv2
 import numpy as np
-import tempfile
-from src.qc.scorer import (
-    score_chunk, compute_psnr, score_to_dict, THRESHOLDS
-)
+
+from src.qc.scorer import THRESHOLDS, compute_psnr, score_chunk, score_to_dict
 
 
 def _make_frames_dir(count: int = 5, noise: float = 0.0) -> str:

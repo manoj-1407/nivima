@@ -13,16 +13,16 @@ replaces it in the final video, and stores the correction as training data.
 This is the data flywheel. Every correction improves future outputs.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+import uuid
+from datetime import UTC, datetime
+
+import structlog
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
-from typing import Optional
-import uuid
-import structlog
 
-from src.storage.db import get_db, Job, Chunk, User
 from src.api.middleware.auth import get_current_user
+from src.storage.db import Chunk, Job, User, get_db
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/api/v1/corrections", tags=["corrections"])
@@ -32,9 +32,9 @@ class CorrectionRequest(BaseModel):
     chunk_index: int
     target_language: str
     correction_type: str           # "translation" | "timing" | "voice" | "reanimation"
-    corrected_text: Optional[str]  # user-provided corrected translation
-    timing_offset_ms: Optional[int]  # shift audio forward/back
-    notes: Optional[str]
+    corrected_text: str | None  # user-provided corrected translation
+    timing_offset_ms: int | None  # shift audio forward/back
+    notes: str | None
 
 
 class CorrectionResponse(BaseModel):
@@ -89,7 +89,7 @@ async def submit_correction(
         "timing_offset_ms": req.timing_offset_ms,
         "notes": req.notes,
         "submitted_by": str(current_user.id),
-        "submitted_at": datetime.now(timezone.utc).isoformat(),
+        "submitted_at": datetime.now(UTC).isoformat(),
         "source_segment": chunk.source_text,
         "source_language": job.source_language,
     }
@@ -155,7 +155,8 @@ def _store_correction_for_training(record: dict):
     In production: write to a corrections table in PostgreSQL
     and a training data pipeline that periodically fine-tunes models.
     """
-    import json, os
+    import json
+    import os
     corrections_dir = "./data/corrections"
     os.makedirs(corrections_dir, exist_ok=True)
     path = os.path.join(corrections_dir, f"{record['id']}.json")
@@ -167,7 +168,9 @@ def _store_correction_for_training(record: dict):
 
 
 def _load_corrections_for_job(job_id: str) -> list:
-    import json, os, glob
+    import glob
+    import json
+    import os
     corrections_dir = "./data/corrections"
     if not os.path.exists(corrections_dir):
         return []
@@ -185,20 +188,22 @@ async def _resynthesize_segment(
     chunk_id: str,
     chunk_index: int,
     target_language: str,
-    corrected_text: Optional[str],
-    timing_offset_ms: Optional[int],
+    corrected_text: str | None,
+    timing_offset_ms: int | None,
     correction_type: str,
-    voice_clone_id: Optional[str]
+    voice_clone_id: str | None
 ):
     """
     Background task: re-synthesize one segment and patch it into the final video.
     This is surgical — only the corrected segment is re-processed.
     """
-    import tempfile, os
-    from src.storage.s3 import download_file, upload_file
-    from src.tts.synthesizer import synthesize_generic, synthesize_cloned
+    import os
+    import tempfile
+
     from src.alignment.audio_adjuster import adjust_segment_timing
-    from src.storage.db import SessionLocal, Chunk
+    from src.storage.db import Chunk, SessionLocal
+    from src.storage.s3 import download_file, upload_file
+    from src.tts.synthesizer import synthesize_cloned, synthesize_generic
 
     db = SessionLocal()
     try:

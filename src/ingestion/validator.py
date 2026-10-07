@@ -1,8 +1,9 @@
+import json
 import os
 import subprocess
-import json
 from dataclasses import dataclass
 from pathlib import Path
+
 from src.config import get_settings
 
 settings = get_settings()

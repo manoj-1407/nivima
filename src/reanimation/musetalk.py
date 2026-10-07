@@ -1,8 +1,10 @@
 import os
+import shutil
 import subprocess
 import tempfile
-import shutil
+
 import structlog
+
 from src.config import get_settings
 
 log = structlog.get_logger()
@@ -36,7 +38,7 @@ def reanimate_chunk(
         shutil.copy(video_chunk_path, output_path)
         return output_path, 0.0
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory():
         result = subprocess.run(
             [
                 "python", "-m", "musetalk.inference",

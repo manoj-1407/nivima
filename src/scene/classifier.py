@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-import numpy as np
+
 import structlog
+
 from src.scene.face_analyzer import FaceAnalysis, analyze_frame, sample_frames
 
 log = structlog.get_logger()

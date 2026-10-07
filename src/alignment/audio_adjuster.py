@@ -1,8 +1,8 @@
 import os
-import subprocess
-import soundfile as sf
+
 import librosa
 import numpy as np
+import soundfile as sf
 import structlog
 
 log = structlog.get_logger()
@@ -68,11 +68,11 @@ def combine_dubbed_segments(
     """
     Concatenate all dubbed audio segments into one track.
     Inserts silence for gaps between segments.
+    Uses soundfile + numpy for Python 3.11-3.14+ compatibility without deprecated audioop.
     """
-    from pydub import AudioSegment
-
-    combined = AudioSegment.empty()
+    chunks = []
     prev_end_ms = 0
+    target_sr = 22050
 
     for seg in segments:
         start_ms = seg.get("start_ms", 0)
@@ -81,16 +81,37 @@ def combine_dubbed_segments(
         if not dubbed_path or not os.path.exists(dubbed_path):
             continue
 
-        gap_ms = max(0, start_ms - prev_end_ms)
-        if gap_ms > 50:
-            silence = AudioSegment.silent(duration=gap_ms)
-            combined += silence
+        try:
+            data, sr = sf.read(dubbed_path)
+            target_sr = sr
+            if data.ndim > 1:
+                data = np.mean(data, axis=1)
 
-        dubbed = AudioSegment.from_wav(dubbed_path)
-        combined += dubbed
-        prev_end_ms = start_ms + len(dubbed)
+            data = data.astype(np.float32)
+            seg_duration_ms = int(len(data) / target_sr * 1000)
 
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    combined.export(output_path, format="wav")
-    log.info("segments_combined", total_ms=len(combined), output=output_path)
+            gap_ms = max(0, start_ms - prev_end_ms)
+            if gap_ms > 50:
+                gap_samples = int((gap_ms / 1000.0) * target_sr)
+                chunks.append(np.zeros(gap_samples, dtype=np.float32))
+
+            chunks.append(data)
+            prev_end_ms = start_ms + seg_duration_ms
+        except Exception as e:
+            log.warning("segment_read_error", path=dubbed_path, error=str(e))
+            continue
+
+    if chunks:
+        combined = np.concatenate(chunks)
+    else:
+        combined = np.zeros(int(target_sr * 0.5), dtype=np.float32)
+
+    out_dir = os.path.dirname(output_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
+    sf.write(output_path, combined, target_sr)
+    total_ms = int(len(combined) / target_sr * 1000)
+    log.info("segments_combined", total_ms=total_ms, output=output_path)
     return output_path
+

@@ -1,9 +1,10 @@
-import pytest
 import os
 import tempfile
-from unittest.mock import patch, MagicMock
-from src.ingestion.validator import validate_and_extract_metadata, ValidationError
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from src.ingestion.validator import ValidationError, validate_and_extract_metadata
 
 MOCK_PROBE_OUTPUT = {
     "streams": [

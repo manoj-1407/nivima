@@ -1,7 +1,9 @@
 import json
 import os
+
 import structlog
-from src.translation.phoneme_map import get_viseme, get_blend_weights
+
+from src.translation.phoneme_map import get_blend_weights, get_viseme
 
 log = structlog.get_logger()
 
@@ -92,5 +94,5 @@ def save_manifest(manifest: dict, output_path: str) -> str:
 
 
 def load_manifest(path: str) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)

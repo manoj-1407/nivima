@@ -1,11 +1,12 @@
+from datetime import UTC, datetime
+
+import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
-import structlog
 
-from src.storage.db import get_db, QCQueue, Job, User
 from src.api.middleware.auth import get_current_user
 from src.qc.flagger import get_job_qc_summary
+from src.storage.db import Job, QCQueue, User, get_db
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/api/v1/qc", tags=["qc"])
@@ -49,7 +50,7 @@ def submit_review(
     if not flag:
         raise HTTPException(status_code=404, detail="Flag not found")
 
-    flag.reviewed_at = datetime.now(timezone.utc)
+    flag.reviewed_at = datetime.now(UTC)
     flag.reviewer_id = current_user.id
     flag.reviewer_decision = decision
     flag.reviewer_notes = notes
@@ -74,7 +75,7 @@ def get_all_pending(
         .join(Job, QCQueue.job_id == Job.id)
         .filter(
             Job.user_id == current_user.id,
-            QCQueue.reviewed_at == None
+            QCQueue.reviewed_at.is_(None)
         )
         .order_by(QCQueue.flagged_at.desc())
         .limit(limit)

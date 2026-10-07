@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
-from typing import Optional
+
 import structlog
+
 from src.config import get_settings
 
 log = structlog.get_logger()
@@ -48,7 +49,7 @@ def _get_model(model_size: str = "large-v3"):
 
 def transcribe_audio(
     audio_path: str,
-    language: Optional[str] = None,
+    language: str | None = None,
     chunk_offset_ms: int = 0
 ) -> list[TranscriptSegment]:
     model = _get_model()

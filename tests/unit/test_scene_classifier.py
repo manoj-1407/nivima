@@ -1,6 +1,4 @@
-import pytest
-from unittest.mock import patch, MagicMock
-from src.scene.classifier import classify_face, Decision
+from src.scene.classifier import Decision, classify_face
 from src.scene.face_analyzer import FaceAnalysis
 
 

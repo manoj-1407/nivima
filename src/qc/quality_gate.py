@@ -17,8 +17,10 @@ Options when BLOCK:
 
 from dataclasses import dataclass
 from enum import Enum
-from src.qc.scorer import QCScore, THRESHOLDS
+
 import structlog
+
+from src.qc.scorer import QCScore
 
 log = structlog.get_logger()
 
@@ -61,7 +63,6 @@ GATE_THRESHOLDS = {
 
 
 def evaluate_gate(score: QCScore) -> GateResult:
-    reasons = []
     block_reasons = []
     review_reasons = []
     recommendations = []

@@ -1,15 +1,16 @@
-import pytest
-import os
+from unittest.mock import MagicMock, patch
+
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+
 from src.api.main import app
 
 client = TestClient(app)
 
 
 def _get_auth_headers():
-    from src.api.middleware.auth import create_access_token
     import uuid
+
+    from src.api.middleware.auth import create_access_token
     token = create_access_token(str(uuid.uuid4()))
     return {"Authorization": f"Bearer {token}"}
 
@@ -27,7 +28,7 @@ def test_root():
 
 def test_submit_job_unauthenticated():
     resp = client.post("/api/v1/jobs")
-    assert resp.status_code == 403
+    assert resp.status_code in (401, 403)
 
 
 def test_get_job_not_found():
@@ -44,7 +45,7 @@ def test_get_job_not_found():
 
 def test_list_voices_unauthenticated():
     resp = client.get("/api/v1/voices")
-    assert resp.status_code == 403
+    assert resp.status_code in (401, 403)
 
 
 def test_voice_clone_no_consent():

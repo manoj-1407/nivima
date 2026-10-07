@@ -1,8 +1,7 @@
-import pytest
-from src.player.manifest_generator import generate_manifest, save_manifest, load_manifest
-import tempfile
 import os
+import tempfile
 
+from src.player.manifest_generator import generate_manifest, load_manifest, save_manifest
 
 PHONEMES = [
     {"phoneme": "n", "start_ms": 0, "end_ms": 120, "confidence": 0.9, "speaker_id": "S1"},

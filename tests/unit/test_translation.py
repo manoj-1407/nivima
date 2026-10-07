@@ -1,6 +1,8 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from src.translation.translator import translate_text, translate_segments, _validate_translation
+
+from src.translation.translator import _validate_translation, translate_segments, translate_text
 
 
 def test_unsupported_source_language():
@@ -15,7 +17,7 @@ def test_unsupported_target_language():
 
 def test_empty_text_returns_empty():
     with patch("src.translation.translator._load"):
-        with patch("src.translation.translator._model") as mock_model:
+        with patch("src.translation.translator._model"):
             with patch("src.translation.translator._tokenizer") as mock_tok:
                 mock_tok.return_value = MagicMock()
                 result = translate_text("", "hi", "te")
@@ -27,7 +29,6 @@ def test_validate_translation_length_ok():
 
 
 def test_validate_translation_too_short_warns(caplog):
-    import structlog
     _validate_translation("hello world this is a very long source sentence with many words", "hi")
 
 

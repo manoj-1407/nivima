@@ -1,12 +1,12 @@
-# Contributing to VoxBridge
+# Contributing to Nivima
 
 ## Setup
 
 ```bash
 git clone https://github.com/manoj-1407/voxbridge
 cd voxbridge
-conda create -n voxbridge python=3.11
-conda activate voxbridge
+conda create -n nivima python=3.11
+conda activate nivima
 make dev-install
 cp .env.example .env
 make docker-up

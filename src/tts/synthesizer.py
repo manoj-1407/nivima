@@ -1,6 +1,7 @@
 import os
-import torch
+
 import structlog
+
 from src.config import get_settings
 
 log = structlog.get_logger()

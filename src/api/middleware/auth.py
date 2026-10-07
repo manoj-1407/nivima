@@ -1,10 +1,12 @@
+from datetime import UTC, datetime
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
-from datetime import datetime, timezone
-from src.config import get_settings
-from src.storage.db import get_db, User
 from sqlalchemy.orm import Session
+
+from src.config import get_settings
+from src.storage.db import User, get_db
 
 settings = get_settings()
 bearer = HTTPBearer()
@@ -42,6 +44,6 @@ def get_current_user(
 
 def create_access_token(user_id: str) -> str:
     from datetime import timedelta
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
+    expire = datetime.now(UTC) + timedelta(minutes=settings.jwt_expire_minutes)
     payload = {"sub": str(user_id), "exp": expire}
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)

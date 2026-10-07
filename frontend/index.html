@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VoxBridge — Multilingual Video Dubbing</title>
+  <title>Nivima — Multilingual Video Dubbing</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
   <style>
     :root {
@@ -477,7 +477,7 @@
 <body>
 
 <nav>
-  <div class="logo">VoxBridge</div>
+  <div class="logo">Nivima</div>
   <div class="nav-right">
     <span id="user-email" style="font-size:13px;color:var(--muted)"></span>
     <button class="btn btn-ghost" onclick="logout()">Sign out</button>
@@ -647,7 +647,7 @@
 
 <script>
 const API = 'http://localhost:8000';
-let token = localStorage.getItem('voxbridge_token') || '';
+let token = localStorage.getItem('nivima_token') || '';
 let selectedFile = null;
 let selectedLangs = new Set();
 let voiceCloneId = null;
@@ -660,7 +660,7 @@ function getHeaders() {
 }
 
 function logout() {
-  localStorage.removeItem('voxbridge_token');
+  localStorage.removeItem('nivima_token');
   token = '';
   toast('Signed out', 'info');
 }
@@ -986,7 +986,7 @@ function toast(msg, type = 'info') {
 document.addEventListener('DOMContentLoaded', () => {
   if (!token) {
     token = prompt('Enter your API token:') || '';
-    if (token) localStorage.setItem('voxbridge_token', token);
+    if (token) localStorage.setItem('nivima_token', token);
   }
   loadJobs();
 });

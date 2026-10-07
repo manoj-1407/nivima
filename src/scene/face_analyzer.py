@@ -1,7 +1,7 @@
+from dataclasses import dataclass
+
 import cv2
 import numpy as np
-from dataclasses import dataclass
-from typing import Optional
 import structlog
 
 log = structlog.get_logger()
@@ -44,7 +44,7 @@ class FaceAnalysis:
     roll_deg: float
     occlusion_score: float
     face_area_pct: float
-    face_bbox: Optional[tuple]
+    face_bbox: tuple | None
     mouth_landmarks: list
 
 
@@ -151,11 +151,6 @@ def _estimate_head_pose(landmarks, w: int, h: int) -> tuple[float, float, float]
 
 
 def _estimate_mouth_occlusion(landmarks, w: int, h: int) -> float:
-    mouth_pts = np.array([
-        (landmarks[i].x * w, landmarks[i].y * h)
-        for i in MOUTH_ALL
-    ])
-
     visibilities = [landmarks[i].visibility for i in MOUTH_ALL
                     if hasattr(landmarks[i], 'visibility')]
 

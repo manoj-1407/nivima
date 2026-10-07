@@ -1,6 +1,5 @@
-from typing import Optional
-import torch
 import structlog
+
 from src.config import get_settings
 
 log = structlog.get_logger()
@@ -47,8 +46,6 @@ def _load():
 
 
 def translate_text(text: str, source_lang: str, target_lang: str) -> str:
-    _load()
-
     src_code = LANGUAGE_CODES.get(source_lang)
     tgt_code = LANGUAGE_CODES.get(target_lang)
 
@@ -57,6 +54,9 @@ def translate_text(text: str, source_lang: str, target_lang: str) -> str:
 
     if not text.strip():
         return ""
+
+    _load()
+
 
     inputs = _tokenizer(
         text,
@@ -67,6 +67,7 @@ def translate_text(text: str, source_lang: str, target_lang: str) -> str:
         max_length=512
     )
 
+    import torch
     if settings.gpu_available:
         inputs = {k: v.to(settings.gpu_device) for k, v in inputs.items()}
 

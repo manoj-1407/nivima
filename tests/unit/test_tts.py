@@ -1,10 +1,14 @@
-import pytest
 import os
 import tempfile
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from src.tts.synthesizer import (
-    synthesize_generic, synthesize_cloned,
-    _validate_reference_audio, XTTS_NATIVE
+    XTTS_NATIVE,
+    _validate_reference_audio,
+    synthesize_cloned,
+    synthesize_generic,
 )
 
 
@@ -19,8 +23,8 @@ def test_reference_audio_not_found():
 
 
 def test_reference_audio_too_short():
-    import soundfile as sf
     import numpy as np
+    import soundfile as sf
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
         data = np.zeros(int(22050 * 2))
@@ -47,8 +51,8 @@ def test_cloned_quality_score_hindi():
         mock_tts.return_value = MagicMock()
         mock_tts.return_value.tts_to_file = MagicMock()
 
-        import soundfile as sf
         import numpy as np
+        import soundfile as sf
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as ref:
             sf.write(ref.name, np.zeros(int(22050 * 8)), 22050)
             ref_path = ref.name
@@ -68,8 +72,8 @@ def test_cloned_quality_score_telugu():
         mock_tts.return_value = MagicMock()
         mock_tts.return_value.tts_to_file = MagicMock()
 
-        import soundfile as sf
         import numpy as np
+        import soundfile as sf
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as ref:
             sf.write(ref.name, np.zeros(int(22050 * 8)), 22050)
             ref_path = ref.name

@@ -1,6 +1,7 @@
 import os
 import subprocess
 from dataclasses import dataclass
+
 import structlog
 
 log = structlog.get_logger()
@@ -24,7 +25,7 @@ def detect_scenes(video_path: str) -> list[tuple[float, float]]:
     Returns list of (start_seconds, end_seconds) scene boundaries.
     Uses PySceneDetect content-aware detection.
     """
-    from scenedetect import detect, ContentDetector, split_video_ffmpeg
+    from scenedetect import ContentDetector, detect
 
     scenes = detect(video_path, ContentDetector(threshold=27.0))
 
@@ -107,9 +108,6 @@ def _split_at_silence(
     Fallback: fixed 25s sub-chunks.
     """
     try:
-        import webrtcvad
-        import soundfile as sf
-        import numpy as np
 
         # Simple midpoint split if VAD fails
         mid = (start_ms + end_ms) // 2
@@ -127,7 +125,8 @@ def _split_at_silence(
 
 
 def _fixed_chunks(audio_path: str, chunk_ms: int = 25000) -> list[tuple[float, float]]:
-    import subprocess, json
+    import json
+    import subprocess
     result = subprocess.run(
         ["ffprobe", "-v", "quiet", "-print_format", "json",
          "-show_format", audio_path],

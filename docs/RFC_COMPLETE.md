@@ -1,4 +1,4 @@
-# VoxBridge — Complete RFC (Request For Comments)
+﻿# Nivima — Complete RFC (Request For Comments)
 **Version:** 1.0  
 **Status:** Draft → Locked  
 **Purpose:** Every architectural decision, tradeoff, open question, and rationale.
@@ -291,11 +291,11 @@ Pre-rendering all combinations = 8× storage + doesn't handle mid-video changes.
 ```json
 {
   "version": "1.0",
-  "base_video": "s3://voxbridge/jobs/123/original.mp4",
-  "dubbed_audio": "s3://voxbridge/jobs/123/dubbed_te.aac",
+  "base_video": "s3://nivima/jobs/123/original.mp4",
+  "dubbed_audio": "s3://nivima/jobs/123/dubbed_te.aac",
   "fps": 24,
   "speaker_meshes": {
-    "S1": "s3://voxbridge/jobs/123/mesh_S1.bin"
+    "S1": "s3://nivima/jobs/123/mesh_S1.bin"
   },
   "segments": [
     {

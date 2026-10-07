@@ -1,17 +1,18 @@
 import os
-import uuid
 import tempfile
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, Query
-from sqlalchemy.orm import Session
-from sqlalchemy import desc
-from datetime import datetime, timezone
-import structlog
+import uuid
+from datetime import UTC, datetime
 
-from src.storage.db import get_db, Job, JobStatus, User
-from src.storage.s3 import upload_file, generate_presigned_url
-from src.api.models.job import JobSubmitRequest
+import structlog
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from sqlalchemy import desc
+from sqlalchemy.orm import Session
+
 from src.api.middleware.auth import get_current_user
-from src.ingestion.validator import validate_and_extract_metadata, ValidationError
+from src.api.models.job import JobSubmitRequest
+from src.ingestion.validator import ValidationError, validate_and_extract_metadata
+from src.storage.db import Job, JobStatus, User, get_db
+from src.storage.s3 import generate_presigned_url, upload_file
 from src.worker.tasks.pipeline import process_job
 
 log = structlog.get_logger()
@@ -108,7 +109,7 @@ async def submit_job(
         "source_duration_minutes": round(duration_minutes, 2),
         "target_languages": req.target_languages,
         "domain_detection": "enabled",
-        "created_at": datetime.now(timezone.utc).isoformat()
+        "created_at": datetime.now(UTC).isoformat()
     }
 
 

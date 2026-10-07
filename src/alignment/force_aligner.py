@@ -1,7 +1,6 @@
 import os
-import json
 import subprocess
-import tempfile
+
 import structlog
 
 log = structlog.get_logger()
@@ -89,7 +88,7 @@ def _parse_textgrid(aligned_dir: str) -> list[dict]:
         return []
 
     phonemes = []
-    with open(textgrids[0], "r", encoding="utf-8") as f:
+    with open(textgrids[0], encoding="utf-8") as f:
         content = f.read()
 
     # Simple TextGrid parser — extract phone tier

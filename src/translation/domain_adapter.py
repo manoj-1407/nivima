@@ -24,7 +24,7 @@ This module:
 
 import re
 from dataclasses import dataclass
-from typing import Optional
+
 import structlog
 
 log = structlog.get_logger()
@@ -133,7 +133,6 @@ def detect_domain(transcript: str) -> DomainContext:
 
     best_domain = max(scores, key=scores.get)
     best_score = scores[best_domain]
-    total_signals = sum(len(v) for v in domain_signals.values())
     confidence = min(1.0, best_score / 5.0)
 
     if best_score == 0:
@@ -210,7 +209,7 @@ RULES:
 def apply_domain_preservation(
     text: str,
     domain_ctx: DomainContext,
-    placeholder_map: Optional[dict] = None
+    placeholder_map: dict | None = None
 ) -> tuple[str, dict]:
     """
     Replace preserve_terms with placeholders before translation,

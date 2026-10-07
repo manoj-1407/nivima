@@ -1,21 +1,22 @@
 import os
 import tempfile
+from datetime import UTC, datetime
+
 import structlog
-from datetime import datetime, timezone
-from src.worker.celery_app import app
-from src.storage.db import SessionLocal, Job, Chunk, JobStatus, ChunkStatus, VoiceClone
-from src.storage.s3 import upload_file, download_file
-from src.ingestion.validator import validate_and_extract_metadata
-from src.ingestion.extractor import extract_audio, merge_audio_only, merge_audio_video
-from src.audio.separator import separate_audio, fallback_silence_background
-from src.transcription.asr import transcribe_audio, segments_to_dict
-from src.transcription.chunker import chunk_audio_by_scenes
-from src.translation.translator import translate_segments
-from src.translation.rewriter import rewrite_segments
-from src.translation.domain_adapter import detect_domain
-from src.tts.synthesizer import synthesize_segments
+
 from src.alignment.audio_adjuster import adjust_segment_timing, combine_dubbed_segments
-from src.qc.quality_gate import evaluate_job_gate
+from src.audio.separator import fallback_silence_background, separate_audio
+from src.ingestion.extractor import extract_audio, merge_audio_video
+from src.ingestion.validator import validate_and_extract_metadata
+from src.storage.db import Chunk, ChunkStatus, Job, JobStatus, SessionLocal, VoiceClone
+from src.storage.s3 import download_file, upload_file
+from src.transcription.asr import segments_to_dict, transcribe_audio
+from src.transcription.chunker import chunk_audio_by_scenes
+from src.translation.domain_adapter import detect_domain
+from src.translation.rewriter import rewrite_segments
+from src.translation.translator import translate_segments
+from src.tts.synthesizer import synthesize_segments
+from src.worker.celery_app import app
 from src.worker.tasks.notify import notify_job_complete, notify_job_failed
 
 log = structlog.get_logger()
@@ -29,7 +30,7 @@ def process_job(self, job_id: str):
         if not job:
             log.error("job_not_found", job_id=job_id)
             return
-        job.started_at = datetime.now(timezone.utc)
+        job.started_at = datetime.now(UTC)
         db.commit()
         with tempfile.TemporaryDirectory() as tmpdir:
             _run_pipeline(self, db, job, tmpdir)
@@ -133,7 +134,7 @@ def _run_pipeline(task, db, job, tmpdir):
         log.info("language_complete", job_id=job_id, lang=target_lang)
 
     _update(db, job, JobStatus.completed, 100, "completed")
-    job.completed_at = datetime.now(timezone.utc)
+    job.completed_at = datetime.now(UTC)
     db.commit()
     notify_job_complete.delay(job_id)
     log.info("pipeline_complete", job_id=job_id)
@@ -161,11 +162,10 @@ def _maybe_reanimate(
         return output_path
 
     try:
-        from src.scene.classifier import classify_chunk, Decision
-        from src.reanimation.musetalk import reanimate_chunk
-        from src.reanimation.compositor import composite_video_chunks
-        from src.qc.scorer import score_chunk, QCScore
         from src.qc.quality_gate import evaluate_job_gate
+        from src.qc.scorer import score_chunk
+        from src.reanimation.musetalk import reanimate_chunk
+        from src.scene.classifier import classify_chunk
 
         # Extract frames for scene classification
         frames_dir = os.path.join(tmpdir, "frames")

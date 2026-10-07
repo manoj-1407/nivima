@@ -1,4 +1,5 @@
 import structlog
+
 from src.worker.celery_app import app
 
 log = structlog.get_logger()

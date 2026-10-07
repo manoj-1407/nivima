@@ -1,4 +1,4 @@
-# Outreach Drafts — Send These Now
+﻿# Outreach Drafts — Send These Now
 
 ---
 
@@ -11,9 +11,9 @@
 
 Dear AI4Bharat Team,
 
-I am a third-year B.Tech CSE student at Geethanjali College of Engineering and Technology, Hyderabad, building VoxBridge — an end-to-end multilingual video dubbing pipeline specifically for Indian educational content.
+I am a third-year B.Tech CSE student at Geethanjali College of Engineering and Technology, Hyderabad, building Nivima — an end-to-end multilingual video dubbing pipeline specifically for Indian educational content.
 
-VoxBridge is built directly on AI4Bharat's stack:
+Nivima is built directly on AI4Bharat's stack:
 - IndicWhisper for transcription
 - IndicTrans2 for translation  
 - IndicTTS for voice synthesis
@@ -30,7 +30,7 @@ I am writing to explore:
 3. **Compute support** — if any GPU allocation is available for students working on Indian language AI applications
 4. **Feedback** — on whether our Dravidian retroflex viseme mapping is phonetically accurate (we would value review from your linguistics team)
 
-The VoxBridge codebase is at github.com/manoj-1407/voxbridge. The paper draft is in research/paper_draft.md.
+The Nivima codebase is at github.com/manoj-1407/voxbridge. The paper draft is in research/paper_draft.md.
 
 I am happy to schedule a call to discuss further.
 
@@ -49,7 +49,7 @@ Phone: [your number]
 **Program:** AWS Activate Founders (up to $1,000 in credits) or Portfolio ($25,000 via accelerator)
 
 **Company description to enter:**
-> VoxBridge is an AI-powered multilingual video dubbing platform for Indian content creators. We enable educators and creators to upload one video and receive versions dubbed in 8 Indian languages with voice cloning and lip synchronization. Our pipeline uses IndicWhisper (ASR), IndicTrans2 (translation), XTTS-v2 (voice cloning), and MuseTalk (lip reanimation) — all self-hosted on AWS infrastructure. We are targeting the Indian EdTech and creator economy market, specifically the 80,000+ independent educators who need to reach regional language audiences without re-recording content.
+> Nivima is an AI-powered multilingual video dubbing platform for Indian content creators. We enable educators and creators to upload one video and receive versions dubbed in 8 Indian languages with voice cloning and lip synchronization. Our pipeline uses IndicWhisper (ASR), IndicTrans2 (translation), XTTS-v2 (voice cloning), and MuseTalk (lip reanimation) — all self-hosted on AWS infrastructure. We are targeting the Indian EdTech and creator economy market, specifically the 80,000+ independent educators who need to reach regional language audiences without re-recording content.
 
 **AWS services you'll use:**
 - EC2 P3/P4 instances (GPU inference)
@@ -68,7 +68,7 @@ Phone: [your number]
 **URL:** startup.google.com/programs/google-for-startups-cloud-program/
 
 **One-paragraph description:**
-> VoxBridge provides AI-powered multilingual video dubbing for Indian educational content creators. Our pipeline transcribes, translates with domain awareness, synthesizes voice-cloned audio, and applies selective lip reanimation — enabling a Hindi educator to reach Tamil, Telugu, Kannada, and Bengali audiences without re-recording. We are solving a research-level problem (speed-invariant lip sync at 1.5x-2x playback, which all existing methods fail at) with a novel animation manifest architecture, targeting submission to ACM Multimedia 2026. We are requesting GCP credits for GPU compute for model fine-tuning (MuseTalk on Indian face data, XTTS-v2 on IndicVoices-R) and production inference infrastructure.
+> Nivima provides AI-powered multilingual video dubbing for Indian educational content creators. Our pipeline transcribes, translates with domain awareness, synthesizes voice-cloned audio, and applies selective lip reanimation — enabling a Hindi educator to reach Tamil, Telugu, Kannada, and Bengali audiences without re-recording. We are solving a research-level problem (speed-invariant lip sync at 1.5x-2x playback, which all existing methods fail at) with a novel animation manifest architecture, targeting submission to ACM Multimedia 2026. We are requesting GCP credits for GPU compute for model fine-tuning (MuseTalk on Indian face data, XTTS-v2 on IndicVoices-R) and production inference infrastructure.
 
 ---
 
@@ -79,7 +79,7 @@ Phone: [your number]
 **Project title:** Dravidian Retroflex Viseme Library and Speed-Invariant Lip Sync Evaluation Suite for Indian Languages
 
 **Abstract:**
-Current lip synchronization research lacks phoneme-viseme mappings for Dravidian retroflex consonants — sounds produced by curling the tongue back to touch the hard palate, present in Telugu, Tamil, Kannada, and Malayalam but absent from CMU phoneset-based mappings used in all major lip sync systems. This project contributes: (1) a phonetically validated retroflex viseme category with blendshape weights derived from articulatory phonetics, (2) an open evaluation dataset of Indian-language talking-face video with ground-truth phoneme annotations, (3) a benchmark suite measuring lip sync quality at multiple playback speeds (0.5×, 1×, 1.5×, 2×) — a novel evaluation dimension not present in current benchmarks, and (4) integration of the retroflex viseme into the animation manifest format proposed by VoxBridge for speed-invariant playback.
+Current lip synchronization research lacks phoneme-viseme mappings for Dravidian retroflex consonants — sounds produced by curling the tongue back to touch the hard palate, present in Telugu, Tamil, Kannada, and Malayalam but absent from CMU phoneset-based mappings used in all major lip sync systems. This project contributes: (1) a phonetically validated retroflex viseme category with blendshape weights derived from articulatory phonetics, (2) an open evaluation dataset of Indian-language talking-face video with ground-truth phoneme annotations, (3) a benchmark suite measuring lip sync quality at multiple playback speeds (0.5×, 1×, 1.5×, 2×) — a novel evaluation dimension not present in current benchmarks, and (4) integration of the retroflex viseme into the animation manifest format proposed by Nivima for speed-invariant playback.
 
 **Deliverables:**
 - Phoneme-viseme mapping file covering all 22 scheduled Indian languages' phoneme sets
@@ -102,7 +102,7 @@ Current lip synchronization research lacks phoneme-viseme mappings for Dravidian
 - ONNX: Model interoperability (relevant — model export for edge deployment)
 
 **Application note:**
-LFX stipends are $3,000-$6,600 for 12-week terms. Apply stating the VoxBridge pipeline as your open-source project and requesting mentorship on production ML infrastructure or distributed systems aspects.
+LFX stipends are $3,000-$6,600 for 12-week terms. Apply stating the Nivima pipeline as your open-source project and requesting mentorship on production ML infrastructure or distributed systems aspects.
 
 ---
 
@@ -118,7 +118,7 @@ LFX stipends are $3,000-$6,600 for 12-week terms. Apply stating the VoxBridge pi
 >
 > I dubbed your video "[specific video title]" into Telugu. Want to see it? No cost, just feedback.
 >
-> The tool is called VoxBridge — still in early development. You'd be one of the first creators to use it. If your Telugu views go up after publishing the dubbed version, I'd love to use that as a case study.
+> The tool is called Nivima — still in early development. You'd be one of the first creators to use it. If your Telugu views go up after publishing the dubbed version, I'd love to use that as a case study.
 >
 > [Your Instagram/LinkedIn]
 

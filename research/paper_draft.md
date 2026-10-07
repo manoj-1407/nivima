@@ -1,4 +1,4 @@
-# Speed-Invariant Lip Synchronization for Multilingual Video Dubbing via Playback-Adaptive 3DMM Blendshape Rendering
+﻿# Speed-Invariant Lip Synchronization for Multilingual Video Dubbing via Playback-Adaptive 3DMM Blendshape Rendering
 
 **Authors:** Manoj [Last Name], [Co-authors if any]  
 **Affiliation:** Geethanjali College of Engineering and Technology, Hyderabad, India  
@@ -9,7 +9,7 @@
 
 ## Abstract
 
-We present VoxBridge, an end-to-end multilingual video dubbing system that addresses a fundamental limitation of existing lip synchronization approaches: the degradation of audio-visual synchrony under non-unity playback speeds. Current lip reanimation methods — including Wav2Lip, MuseTalk, and LatentSync — bake mouth movements into fixed-frame video files calibrated for 1× playback. At the 1.5× and 2× playback speeds routinely used by Indian educational content consumers, these methods produce visibly mechanical mouth movements that break the dubbing illusion.
+We present Nivima, an end-to-end multilingual video dubbing system that addresses a fundamental limitation of existing lip synchronization approaches: the degradation of audio-visual synchrony under non-unity playback speeds. Current lip reanimation methods — including Wav2Lip, MuseTalk, and LatentSync — bake mouth movements into fixed-frame video files calibrated for 1× playback. At the 1.5× and 2× playback speeds routinely used by Indian educational content consumers, these methods produce visibly mechanical mouth movements that break the dubbing illusion.
 
 We propose a decoupled architecture in which animation intent is stored as a lightweight animation manifest — a sequence of phoneme-to-viseme mappings with associated 3D morphable model (3DMM) blendshape weights — separate from the base video. A custom player SDK applies blendshape deformations at render time, interpolating between viseme states based on the current playback speed. This produces lip movements that remain accurate and natural at any playback rate between 0.25× and 2× without pre-rendering multiple video versions.
 
@@ -32,7 +32,7 @@ We identify this as the **playback speed problem in AI dubbing** — to our know
 2. An animation manifest format that separates viseme intent from video pixels
 3. A playback-adaptive 3DMM blendshape renderer that maintains lip sync at any speed
 4. A novel phoneme-viseme mapping for Dravidian retroflex consonants
-5. An end-to-end multilingual dubbing pipeline for Indian languages (VoxBridge)
+5. An end-to-end multilingual dubbing pipeline for Indian languages (Nivima)
 6. Quantitative evaluation of lip sync quality across playback speeds on Indian content
 
 ---
@@ -102,7 +102,7 @@ MuseTalk degrades 2.1 SyncNet points from 1× to 2×. Our method maintains withi
 
 ### 4.1 System Overview
 
-VoxBridge consists of four stages:
+Nivima consists of four stages:
 
 **Stage 1 — Phoneme-Aware Script Generation (Path A)**
 Source video is transcribed via IndicWhisper. A phoneme timing map is extracted using Montreal Forced Aligner. Target language dialogue is generated under phoneme timing constraints using IndicTrans2 followed by a Llama 3.1 8B constrained rewrite pass that optimizes for (a) semantic fidelity, (b) duration matching, and (c) visually critical phoneme alignment at close-up frames.
@@ -114,7 +114,7 @@ Target language audio is synthesized using XTTS-v2 voice cloning from 6 seconds 
 Rather than immediately rendering pixel-level lip movements, we extract the phoneme timestamp sequence from the dubbed audio via forced alignment and store it as an animation manifest (Section 4.2).
 
 **Stage 4 — Playback-Adaptive Rendering**
-The VoxPlayer SDK applies blendshape deformations at render time, reading the animation manifest and scaling timestamp lookups by the current playback speed (Section 4.3).
+The NivimaPlayer SDK applies blendshape deformations at render time, reading the animation manifest and scaling timestamp lookups by the current playback speed (Section 4.3).
 
 ### 4.2 Animation Manifest Format
 
@@ -169,7 +169,7 @@ This retroflex viseme covers: Telugu ట(ṭa)/డ(ḍa)/ణ(ṇa), Tamil ட(�
 
 ### 4.3 Playback-Adaptive Blendshape Renderer
 
-The VoxPlayer SDK renders animation at the correct speed for any playback rate:
+The NivimaPlayer SDK renders animation at the correct speed for any playback rate:
 
 ```
 At playback speed s, current video time t:
@@ -233,7 +233,7 @@ This selective approach prevents the quality degradation seen in productions lik
 
 ### 7.1 Experimental Setup
 
-**Dataset:** 50 hours of Hindi educational YouTube content dubbed into Telugu, Tamil, and Kannada using the VoxBridge pipeline. Ground truth evaluation using 10 hours with manually dubbed reference by professional dubbing artists.
+**Dataset:** 50 hours of Hindi educational YouTube content dubbed into Telugu, Tamil, and Kannada using the Nivima pipeline. Ground truth evaluation using 10 hours with manually dubbed reference by professional dubbing artists.
 
 **Baselines:**
 - Audio-only dubbing (no visual)
@@ -274,7 +274,7 @@ Primary contribution evaluation: SyncNet score vs playback speed across all meth
 
 ## 9. Conclusion
 
-We present the first characterization of the playback speed problem in AI video dubbing and a principled solution via playback-adaptive 3DMM blendshape rendering. Our animation manifest format decouples animation intent from pixel data, enabling speed-invariant lip synchronization without pre-rendering multiple video versions. We further contribute the first phoneme-viseme mapping for Dravidian retroflex consonants, and an end-to-end multilingual dubbing pipeline (VoxBridge) targeting the Indian educational content market.
+We present the first characterization of the playback speed problem in AI video dubbing and a principled solution via playback-adaptive 3DMM blendshape rendering. Our animation manifest format decouples animation intent from pixel data, enabling speed-invariant lip synchronization without pre-rendering multiple video versions. We further contribute the first phoneme-viseme mapping for Dravidian retroflex consonants, and an end-to-end multilingual dubbing pipeline (Nivima) targeting the Indian educational content market.
 
 ---
 

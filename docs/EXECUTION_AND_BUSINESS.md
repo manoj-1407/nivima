@@ -1,4 +1,4 @@
-# VoxBridge — Execution Timeline, Dataset, Fine-Tuning, Business
+﻿# Nivima — Execution Timeline, Dataset, Fine-Tuning, Business
 
 ---
 
@@ -303,7 +303,7 @@ Expected improvement: voice clone similarity 65% → 75% for Telugu
 
 ```
 Month 7: Animation manifest format finalized + mesh_builder.py
-Month 8: VoxPlayer SDK (web) — basic working version
+Month 8: NivimaPlayer SDK (web) — basic working version
 Month 9: Speed-invariant playback working at 0.5x, 1x, 1.5x, 2x
 Month 10: User study — 50 Indian students, evaluate across speeds
 Month 11: Paper draft, provisional patent filing
@@ -648,7 +648,7 @@ Mandatory consent flow before voice clone creation:
 2. You have explicit written permission from the voice owner
 3. You understand that creating unauthorized voice clones
    may violate applicable laws
-4. You consent to VoxBridge storing this voice embedding
+4. You consent to Nivima storing this voice embedding
    per our Privacy Policy and DPDP Act requirements"
 
 Stored in DB: user_id, consent_timestamp, consent_version
@@ -664,7 +664,7 @@ Never delete consent records — legal protection
 
 **Copyright of output:**
 - User retains copyright of all output videos
-- VoxBridge takes no rights to user content
+- Nivima takes no rights to user content
 - We store processed videos temporarily (7 days default, 30 days paid)
 - After expiry: permanently deleted, not retrievable
 

@@ -1,6 +1,7 @@
+
 import httpx
-import json
 import structlog
+
 from src.config import get_settings
 
 log = structlog.get_logger()

@@ -47,7 +47,7 @@ def main():
                         help="Target language codes (default: te)")
     parser.add_argument("--voice", default=None,
                         help="Reference audio for voice cloning (optional, min 6s)")
-    parser.add_argument("--output", default="./voxbridge_output",
+    parser.add_argument("--output", default="./nivima_output",
                         help="Output directory")
     parser.add_argument("--tier", choices=["speed", "quality"], default="speed")
     args = parser.parse_args()

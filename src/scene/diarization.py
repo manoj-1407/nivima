@@ -1,6 +1,7 @@
 import os
-import structlog
 from dataclasses import dataclass
+
+import structlog
 
 log = structlog.get_logger()
 
@@ -71,7 +72,8 @@ def get_active_speaker_at(
 
 
 def _single_speaker_fallback(audio_path: str) -> list[SpeakerSegment]:
-    import subprocess, json
+    import json
+    import subprocess
     result = subprocess.run(
         ["ffprobe", "-v", "quiet", "-print_format", "json",
          "-show_format", audio_path],

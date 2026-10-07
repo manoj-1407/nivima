@@ -19,12 +19,12 @@ The solution:
 This is novel. HeyGen, Dubverse, nobody does this.
 """
 
-import os
-import numpy as np
 import json
-import structlog
+import os
 from dataclasses import dataclass
-from typing import Optional
+
+import numpy as np
+import structlog
 
 log = structlog.get_logger()
 
@@ -47,8 +47,9 @@ def compute_voice_embedding(audio_path: str) -> np.ndarray:
     Falls back to MFCC-based feature extraction if resemblyzer unavailable.
     """
     try:
-        from resemblyzer import VoiceEncoder, preprocess_wav
         from pathlib import Path
+
+        from resemblyzer import VoiceEncoder, preprocess_wav
 
         encoder = VoiceEncoder()
         wav = preprocess_wav(Path(audio_path))
@@ -82,7 +83,7 @@ def _mfcc_embedding(audio_path: str) -> np.ndarray:
 def build_canonical_voice(
     creator_id: str,
     audio_paths: list[str],
-    timestamps: Optional[list[float]] = None,
+    timestamps: list[float] | None = None,
     decay_factor: float = 0.95
 ) -> CanonicalVoice:
     """
@@ -157,7 +158,7 @@ def save_canonical_voice(voice: CanonicalVoice, cache_dir: str) -> str:
     return path
 
 
-def load_canonical_voice(creator_id: str, cache_dir: str) -> Optional[CanonicalVoice]:
+def load_canonical_voice(creator_id: str, cache_dir: str) -> CanonicalVoice | None:
     path = os.path.join(cache_dir, f"{creator_id}_canonical.npz")
     meta_path = os.path.join(cache_dir, f"{creator_id}_meta.json")
 

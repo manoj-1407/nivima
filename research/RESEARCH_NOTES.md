@@ -1,4 +1,4 @@
-# VoxBridge — Research Notes
+﻿# Nivima — Research Notes
 
 ---
 
@@ -261,7 +261,7 @@ def run_full_evaluation(test_set_dir: str) -> dict:
 **For speed-invariant evaluation (Phase 3):**
 Watch same clip at 1x, 1.5x, 2x
 Rate: does lip sync look worse at higher speeds? (1-5, 5=no difference)
-Compare: VoxBridge (speed-invariant) vs MuseTalk baked (standard) at each speed
+Compare: Nivima (speed-invariant) vs MuseTalk baked (standard) at each speed
 
 ---
 

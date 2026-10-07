@@ -3,18 +3,20 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.backends.legacy:build"
 
 [project]
-name = "voxbridge"
+name = "nivima"
 version = "0.1.0"
-description = "Multilingual video dubbing for Indian content creators"
+description = "Nivima — Neural Indian Video Interface & Multilingual Animation Platform"
 requires-python = ">=3.11"
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-select = ["E", "F", "I", "N", "W", "UP"]
-ignore = ["E501"]
 
-[tool.ruff.isort]
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501", "UP042"]
+
+[tool.ruff.lint.isort]
 known-first-party = ["src"]
 
 [tool.mypy]

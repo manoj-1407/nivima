@@ -1,8 +1,9 @@
 import os
+from dataclasses import dataclass
+
 import cv2
 import numpy as np
 import structlog
-from dataclasses import dataclass
 
 log = structlog.get_logger()
 
@@ -26,6 +27,15 @@ THRESHOLDS = {
     "psnr_flag": 30.0,
     "temporal_flag": 10.0,
 }
+
+
+def compute_psnr(a: np.ndarray, b: np.ndarray) -> float:
+    """Computes Peak Signal-to-Noise Ratio between two images."""
+    mse = np.mean((a.astype(np.float64) - b.astype(np.float64)) ** 2)
+    if mse < 1e-10:
+        return float("inf")
+    return float(20.0 * np.log10(255.0 / np.sqrt(mse)))
+
 
 
 def score_chunk(

@@ -5,10 +5,11 @@ Skipped automatically if models not available.
 
 Run with: pytest tests/integration/test_pipeline_audio.py -v -s
 """
-import pytest
 import os
 import tempfile
+
 import numpy as np
+import pytest
 
 # Skip entire module if heavy dependencies not available
 pytest.importorskip("faster_whisper", reason="faster-whisper not installed")
@@ -55,8 +56,9 @@ def test_validator_accepts_valid_video():
 
 @pytest.mark.integration
 def test_whisper_transcribes_audio():
-    from src.transcription.asr import transcribe_audio
     import soundfile as sf
+
+    from src.transcription.asr import transcribe_audio
 
     with tempfile.TemporaryDirectory() as d:
         # Generate silent audio (no speech — should produce empty/minimal segments)
@@ -71,8 +73,9 @@ def test_whisper_transcribes_audio():
 
 @pytest.mark.integration
 def test_tts_generic_produces_audio():
-    from src.tts.synthesizer import synthesize_generic
     import soundfile as sf
+
+    from src.tts.synthesizer import synthesize_generic
 
     with tempfile.TemporaryDirectory() as d:
         out = os.path.join(d, "output.wav")
@@ -87,8 +90,9 @@ def test_tts_generic_produces_audio():
 
 @pytest.mark.integration
 def test_audio_adjuster_stretch():
-    from src.alignment.audio_adjuster import adjust_segment_timing
     import soundfile as sf
+
+    from src.alignment.audio_adjuster import adjust_segment_timing
 
     with tempfile.TemporaryDirectory() as d:
         src = os.path.join(d, "src.wav")
@@ -105,8 +109,9 @@ def test_audio_adjuster_stretch():
 
 @pytest.mark.integration
 def test_combine_segments_output():
-    from src.alignment.audio_adjuster import combine_dubbed_segments
     import soundfile as sf
+
+    from src.alignment.audio_adjuster import combine_dubbed_segments
 
     with tempfile.TemporaryDirectory() as d:
         segs = []

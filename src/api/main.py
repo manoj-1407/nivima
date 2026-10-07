@@ -1,26 +1,27 @@
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from passlib.context import CryptContext
-from sqlalchemy.orm import Session
-from datetime import datetime, timezone
 import uuid
-import structlog
 
-from src.api.routes.jobs import router as jobs_router
-from src.api.routes.voices import router as voices_router
-from src.api.routes.qc import router as qc_router
+import structlog
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from passlib.context import CryptContext
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
 from src.api.middleware.auth import create_access_token
-from src.storage.db import get_db, User
+from src.api.routes.corrections import router as corrections_router
+from src.api.routes.jobs import router as jobs_router
+from src.api.routes.qc import router as qc_router
+from src.api.routes.voices import router as voices_router
 from src.config import get_settings
+from src.storage.db import User, get_db
 
 settings = get_settings()
 log = structlog.get_logger()
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI(
-    title="VoxBridge API",
-    description="Multilingual video dubbing for Indian content creators",
+    title="Nivima API",
+    description="Nivima — Neural Indian Video Interface & Multilingual Animation Platform",
     version="0.1.0",
     docs_url="/docs" if settings.environment == "development" else None,
     redoc_url=None
@@ -36,6 +37,7 @@ app.add_middleware(
 app.include_router(jobs_router)
 app.include_router(voices_router)
 app.include_router(qc_router)
+app.include_router(corrections_router)
 
 
 class RegisterRequest(BaseModel):
@@ -79,14 +81,9 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": "0.1.0"}
+    return {"status": "ok", "version": "0.1.0", "service": "Nivima API"}
 
 
 @app.get("/")
 def root():
-    return {"message": "VoxBridge API", "docs": "/docs"}
-
-
-# Late import to avoid circular — corrections router added after main routes
-from src.api.routes.corrections import router as corrections_router
-app.include_router(corrections_router)
+    return {"message": "Nivima API", "docs": "/docs"}

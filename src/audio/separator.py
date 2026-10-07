@@ -1,7 +1,9 @@
 import os
-import subprocess
 import shutil
+import subprocess
+
 import structlog
+
 from src.config import get_settings
 
 log = structlog.get_logger()

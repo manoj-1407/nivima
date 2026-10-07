@@ -1,12 +1,22 @@
-from sqlalchemy import (
-    create_engine, Column, String, Integer, Boolean,
-    DateTime, Text, ForeignKey, Enum as SAEnum, ARRAY
-)
-from sqlalchemy.dialects.postgresql import UUID, JSONB
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
-from sqlalchemy.sql import func
-import uuid
 import enum
+import uuid
+
+from sqlalchemy import (
+    ARRAY,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    create_engine,
+)
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from sqlalchemy.sql import func
+
 from src.config import get_settings
 
 settings = get_settings()

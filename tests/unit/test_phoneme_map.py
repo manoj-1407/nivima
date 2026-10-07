@@ -1,7 +1,8 @@
-import pytest
 from src.translation.phoneme_map import (
-    get_viseme, get_blend_weights,
-    PHONEME_TO_VISEME, VISEME_TO_BLENDWEIGHTS
+    PHONEME_TO_VISEME,
+    VISEME_TO_BLENDWEIGHTS,
+    get_blend_weights,
+    get_viseme,
 )
 
 

@@ -1,4 +1,4 @@
-# VoxBridge — Investor Pitch Deck
+﻿# Nivima — Investor Pitch Deck
 **Stage:** Pre-seed  
 **Ask:** ₹1.5 crore (~$180K)  
 **Use:** 12 months runway — finish product, acquire first 100 paying creators  
@@ -37,7 +37,7 @@ The gap: **no affordable, high-quality, creator-accessible dubbing tool exists f
 
 ## Slide 3 — The Solution
 
-**VoxBridge: Upload once. Reach everyone.**
+**Nivima: Upload once. Reach everyone.**
 
 Upload one Hindi lecture. Get it back dubbed in Telugu, Tamil, Kannada, Malayalam, Bengali — in the creator's own cloned voice — with lip sync that works at any playback speed.
 
@@ -171,7 +171,7 @@ Creator voice clones live on our platform. Switching means rebuilding the clone.
 
 **Manoj [Last Name]** — Founder & CEO  
 B.Tech CSE, Geethanjali College of Engineering, Hyderabad  
-Built VoxBridge pipeline architecture, Phase 1-3 implementation  
+Built Nivima pipeline architecture, Phase 1-3 implementation  
 Background: backend systems, distributed systems, ML pipelines  
 GitHub: manoj-1407  
 
@@ -211,11 +211,11 @@ GitHub: manoj-1407
 
 **Year 1:** The tool every serious Indian YouTube educator uses to reach all of India.
 
-**Year 3:** The infrastructure layer for all regional language content distribution in India. EdTech platforms, OTT, government communications, corporate training all running through VoxBridge APIs.
+**Year 3:** The infrastructure layer for all regional language content distribution in India. EdTech platforms, OTT, government communications, corporate training all running through Nivima APIs.
 
 **Year 5:** Expand to Southeast Asia (Indonesia, Vietnam, Thailand) — same problem, same structural gap, larger market.
 
-**The 10-year vision:** Every piece of human knowledge produced in one language, accessible to every person in their own language, in the creator's own voice. VoxBridge is the infrastructure that makes that happen.
+**The 10-year vision:** Every piece of human knowledge produced in one language, accessible to every person in their own language, in the creator's own voice. Nivima is the infrastructure that makes that happen.
 
 ---
 

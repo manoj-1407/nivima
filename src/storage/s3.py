@@ -1,8 +1,10 @@
+import os
+
 import boto3
+import structlog
 from botocore.config import Config
 from botocore.exceptions import ClientError
-import os
-import structlog
+
 from src.config import get_settings
 
 log = structlog.get_logger()
