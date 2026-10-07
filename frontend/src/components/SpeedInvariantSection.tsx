@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FastForward, CheckCircle, XCircle, Code2, Copy, Check } from 'lucide-react';
 
-export const SpeedInvariantSection: React.FC = () => {
-  const [speed, setSpeed] = useState<number>(1.75);
+export const SpeedInvariantSection = () => {
   const [copied, setCopied] = useState<boolean>(false);
 
   const manifestJson = `{

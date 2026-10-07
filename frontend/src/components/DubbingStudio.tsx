@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Upload,
   CheckCircle2,
-  AlertCircle,
   Play,
   RotateCcw,
   Sliders,
@@ -11,18 +10,18 @@ import {
   FileCheck,
   Check,
   Cpu,
-  Download
+  Download,
+  Activity
 } from 'lucide-react';
-import { SUPPORTED_LANGUAGES, IndianLanguage } from '../types.ts';
+import { SUPPORTED_LANGUAGES } from '../types.ts';
 import confetti from 'canvas-confetti';
 
-export const DubbingStudio: React.FC = () => {
+export const DubbingStudio = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [selectedFile, setSelectedFile] = useState<string | null>('edtech_physics_lecture_optics.mp4');
+  const [selectedFile] = useState<string | null>('edtech_physics_lecture_optics.mp4');
   const [sourceLang, setSourceLang] = useState<string>('hi');
   const [targetLangs, setTargetLangs] = useState<string[]>(['te', 'ta', 'bn']);
   const [domain, setDomain] = useState<string>('edtech_stem');
-  const [processingTier, setProcessingTier] = useState<'speed' | 'quality'>('quality');
   const [consentAcknowledged, setConsentAcknowledged] = useState<boolean>(true);
 
   // Pipeline execution state

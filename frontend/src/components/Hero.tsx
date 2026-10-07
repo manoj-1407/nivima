@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Pause, Sparkles, Volume2, ShieldCheck, Zap, ArrowRight, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, Pause, Sparkles, ShieldCheck, Zap, ArrowRight, Activity } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, IndianLanguage } from '../types.ts';
 
 interface HeroProps {
