@@ -11,6 +11,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: nivima
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: nivima
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -39,6 +64,14 @@ jobs:
 
       - name: Lint with ruff
         run: python -m ruff check src/ tests/ --ignore E501
+
+      - name: Migrate test database schema
+        run: python -c "from src.storage.db import Base, engine; Base.metadata.create_all(bind=engine)"
+        env:
+          DATABASE_URL: postgresql://nivima:password@localhost:5432/nivima
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET: test_secret_minimum_32_characters_long_here
+          ENVIRONMENT: test
 
       - name: Run fast unit tests
         run: python -m pytest tests/unit/ -v --tb=short
