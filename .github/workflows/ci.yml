@@ -28,7 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install ruff pytest pytest-asyncio
           pip install pydantic==2.8.2 pydantic-settings==2.4.0
-          pip install sqlalchemy==2.0.32 fastapi==0.115.0
+          pip install sqlalchemy==2.0.32 fastapi==0.115.0 psycopg2-binary
           pip install python-jose[cryptography]==3.3.0 passlib[bcrypt]==1.7.4 bcrypt==4.0.1
           pip install numpy soundfile librosa scipy
           pip install opencv-python-headless

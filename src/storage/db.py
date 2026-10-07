@@ -21,11 +21,14 @@ from src.config import get_settings
 
 settings = get_settings()
 
+_is_sqlite = settings.database_url.startswith("sqlite")
+_engine_kwargs = {"pool_pre_ping": True} if not _is_sqlite else {"connect_args": {"check_same_thread": False}}
+if not _is_sqlite:
+    _engine_kwargs.update({"pool_size": 10, "max_overflow": 20})
+
 engine = create_engine(
     settings.database_url,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True
+    **_engine_kwargs
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
