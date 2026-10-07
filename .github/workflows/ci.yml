@@ -21,7 +21,7 @@ jobs:
           cache: pip
 
       - name: Install system deps
-        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg libsndfile1
+        run: sudo apt-get install -y --no-install-recommends ffmpeg libsndfile1 || true
 
       - name: Install CI deps only
         run: |
