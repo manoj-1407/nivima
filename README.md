@@ -6,7 +6,7 @@
 
 *Your content. Every language. Your voice.*
 
-[![CI](https://github.com/manoj-1407/voxbridge/actions/workflows/ci.yml/badge.svg)](https://github.com/manoj-1407/voxbridge/actions)
+[![CI](https://github.com/manoj-1407/nivima/actions/workflows/ci.yml/badge.svg)](https://github.com/manoj-1407/nivima/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 
@@ -49,8 +49,8 @@ We also define the first phoneme-viseme mapping for Dravidian retroflex consonan
 ## Quick Start
 
 ```bash
-git clone https://github.com/manoj-1407/voxbridge
-cd voxbridge
+git clone https://github.com/manoj-1407/nivima
+cd nivima
 
 conda create -n nivima python=3.11
 conda activate nivima

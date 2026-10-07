@@ -3,8 +3,8 @@
 ## Setup
 
 ```bash
-git clone https://github.com/manoj-1407/voxbridge
-cd voxbridge
+git clone https://github.com/manoj-1407/nivima
+cd nivima
 conda create -n nivima python=3.11
 conda activate nivima
 make dev-install

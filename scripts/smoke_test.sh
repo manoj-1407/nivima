@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== VoxBridge Smoke Test ==="
+echo "=== Nivima Smoke Test ==="
 
 echo "[1] Checking ffmpeg..."
 ffmpeg -version | head -1

@@ -1,4 +1,4 @@
-﻿# Nivima — Execution Timeline, Dataset, Fine-Tuning, Business
+# Nivima — Execution Timeline, Dataset, Fine-Tuning, Business
 
 ---
 
@@ -775,7 +775,7 @@ Test in Week 3:
 ## 8. Tools and Accounts to Set Up Now
 
 **Immediately:**
-- [ ] GitHub repo: voxbridge (private)
+- [ ] GitHub repo: nivima (public/private)
 - [ ] Google Colab Pro+ subscription
 - [ ] Vast.ai account + $50 credit for fine-tuning
 - [ ] Cloudflare account (R2 for storage — 10GB free)

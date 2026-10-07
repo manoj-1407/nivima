@@ -25,30 +25,39 @@ jobs:
 
       - name: Install CI deps only
         run: |
-          pip install --upgrade pip
-          pip install ruff
+          python -m pip install --upgrade pip
+          pip install ruff pytest pytest-asyncio
           pip install pydantic==2.8.2 pydantic-settings==2.4.0
           pip install sqlalchemy==2.0.32 fastapi==0.115.0
-          pip install python-jose[cryptography]==3.3.0 passlib[bcrypt]==1.7.4
-          pip install pytest==8.3.3 pytest-asyncio==0.24.0
-          pip install numpy soundfile librosa
+          pip install python-jose[cryptography]==3.3.0 passlib[bcrypt]==1.7.4 bcrypt==4.0.1
+          pip install numpy soundfile librosa scipy
+          pip install opencv-python-headless
           pip install boto3==1.35.22
           pip install httpx==0.27.2 python-multipart==0.0.9
           pip install structlog==24.4.0 tenacity==9.0.0
           pip install aiofiles==24.1.0 python-dotenv==1.0.1
 
       - name: Lint with ruff
-        run: ruff check src/ tests/ --ignore E501
+        run: python -m ruff check src/ tests/ --ignore E501
 
       - name: Run fast unit tests
-        run: |
-          pytest tests/unit/test_validator.py \
-                 tests/unit/test_translation.py \
-                 tests/unit/test_api_models.py \
-                 tests/unit/test_audio_adjuster.py \
-                 tests/unit/test_phoneme_map.py \
-                 tests/unit/test_manifest_generator.py \
-                 -v --tb=short
+        run: python -m pytest tests/unit/ -v --tb=short
+        env:
+          DATABASE_URL: postgresql://nivima:password@localhost:5432/nivima
+          REDIS_URL: redis://localhost:6379/0
+          S3_ENDPOINT: http://localhost:9000
+          S3_BUCKET: nivima-test
+          S3_ACCESS_KEY: minioadmin
+          S3_SECRET_KEY: minioadmin
+          JWT_SECRET: test_secret_minimum_32_characters_long_here
+          GPU_AVAILABLE: "false"
+          GPU_DEVICE: cpu
+          MODEL_CACHE_DIR: /tmp/models
+          ENVIRONMENT: test
+          OLLAMA_URL: http://localhost:11434
+
+      - name: Run API integration tests
+        run: python -m pytest tests/integration/test_api.py -v --tb=short
         env:
           DATABASE_URL: postgresql://nivima:password@localhost:5432/nivima
           REDIS_URL: redis://localhost:6379/0

@@ -1,4 +1,4 @@
-# VoxBridge — Master Project Document
+# Nivima — Master Project Document
 **Version:** 1.0  
 **Status:** Planning → Build  
 **Owner:** Manoj
@@ -804,8 +804,8 @@ CI/CD:           GitHub Actions
 
 ```bash
 # Environment setup
-conda create -n voxbridge python=3.11
-conda activate voxbridge
+conda create -n nivima python=3.11
+conda activate nivima
 
 pip install openai-whisper faster-whisper
 pip install montreal-forced-aligner

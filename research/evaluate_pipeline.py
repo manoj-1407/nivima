@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VoxBridge Pipeline Evaluation
+Nivima Pipeline Evaluation
 Measures WER, BLEU, TTS quality, and lip sync metrics.
 
 Usage:
@@ -169,7 +169,7 @@ def main():
         "target_lang": args.target,
     }
 
-    print(f"\n=== VoxBridge Pipeline Evaluation ===")
+    print(f"\n=== Nivima Pipeline Evaluation ===")
     print(f"Source: {args.source} | Target: {args.target}\n")
 
     print("[1/3] Evaluating ASR...")

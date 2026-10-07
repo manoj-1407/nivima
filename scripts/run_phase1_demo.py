@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VoxBridge Phase 1 Demo Script
+Nivima Phase 1 Demo Script
 Runs the full audio dubbing pipeline on a local video file.
 No API server needed — runs pipeline directly.
 
@@ -40,7 +40,7 @@ def step(n: int, total: int, text: str):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="VoxBridge Phase 1 Demo")
+    parser = argparse.ArgumentParser(description="Nivima Phase 1 Demo")
     parser.add_argument("--video", required=True, help="Input video path")
     parser.add_argument("--source", default="hi", help="Source language code (default: hi)")
     parser.add_argument("--targets", nargs="+", default=["te"],
@@ -52,7 +52,7 @@ def main():
     parser.add_argument("--tier", choices=["speed", "quality"], default="speed")
     args = parser.parse_args()
 
-    banner("VoxBridge Phase 1 Demo — Audio Dubbing Pipeline")
+    banner("Nivima Phase 1 Demo — Audio Dubbing Pipeline")
     print(f"  Input:   {args.video}")
     print(f"  Source:  {args.source}")
     print(f"  Targets: {', '.join(args.targets)}")

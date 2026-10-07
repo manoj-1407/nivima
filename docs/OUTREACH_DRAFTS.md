@@ -1,4 +1,4 @@
-﻿# Outreach Drafts — Send These Now
+# Outreach Drafts — Send These Now
 
 ---
 
@@ -30,7 +30,7 @@ I am writing to explore:
 3. **Compute support** — if any GPU allocation is available for students working on Indian language AI applications
 4. **Feedback** — on whether our Dravidian retroflex viseme mapping is phonetically accurate (we would value review from your linguistics team)
 
-The Nivima codebase is at github.com/manoj-1407/voxbridge. The paper draft is in research/paper_draft.md.
+The Nivima codebase is at github.com/manoj-1407/nivima. The paper draft is in research/paper_draft.md.
 
 I am happy to schedule a call to discuss further.
 

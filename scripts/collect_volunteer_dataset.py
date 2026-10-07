@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VoxBridge Volunteer Dataset Collection Tool
+Nivima Volunteer Dataset Collection Tool
 Records volunteers reading phoneme-balanced sentences for Indian face dataset.
 
 Usage:
@@ -168,7 +168,7 @@ def main():
             cv2.putText(display, "All sentences recorded! Press Q to save.",
                         (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-        cv2.imshow("VoxBridge Dataset Collection", display)
+        cv2.imshow("Nivima Dataset Collection", display)
         key = cv2.waitKey(1) & 0xFF
 
         if key == ord(' '):

@@ -1,4 +1,4 @@
-﻿# Phase 1 — Complete Implementation Plan
+# Phase 1 — Complete Implementation Plan
 **Timeline:** Month 1-3  
 **Goal:** Working audio dubbing pipeline. No visual changes. Proven end to end.
 **Definition of Done:** Upload Hindi video → get Telugu/Tamil audio-dubbed video.
@@ -125,7 +125,7 @@ nivima/
 
 ```bash
 # .env.example
-DATABASE_URL=postgresql://nivima:password@localhost:5432/voxbridge
+DATABASE_URL=postgresql://nivima:password@localhost:5432/nivima
 REDIS_URL=redis://localhost:6379/0
 S3_ENDPOINT=https://your-r2-endpoint.r2.cloudflarestorage.com
 S3_BUCKET=nivima-media
@@ -1299,7 +1299,7 @@ services:
       context: ../..
       dockerfile: infra/docker/Dockerfile.api
     environment:
-      - DATABASE_URL=postgresql://nivima:password@postgres:5432/voxbridge
+      - DATABASE_URL=postgresql://nivima:password@postgres:5432/nivima
       - REDIS_URL=redis://redis:6379/0
     env_file: .env
     ports:
@@ -1315,7 +1315,7 @@ services:
       context: ../..
       dockerfile: infra/docker/Dockerfile.worker
     environment:
-      - DATABASE_URL=postgresql://nivima:password@postgres:5432/voxbridge
+      - DATABASE_URL=postgresql://nivima:password@postgres:5432/nivima
       - REDIS_URL=redis://redis:6379/0
     env_file: .env
     depends_on:

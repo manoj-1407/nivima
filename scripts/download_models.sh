@@ -4,7 +4,7 @@ set -e
 MODEL_DIR="${MODEL_CACHE_DIR:-./models}"
 mkdir -p "$MODEL_DIR"
 
-echo "=== VoxBridge Model Download ==="
+echo "=== Nivima Model Download ==="
 
 echo "[1/5] Downloading Whisper large-v3..."
 python -c "
