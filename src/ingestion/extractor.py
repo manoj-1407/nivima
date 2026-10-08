@@ -27,7 +27,10 @@ def merge_audio_video(
     speech_volume: float = 1.0,
     background_volume: float = 0.7
 ) -> str:
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    out_dir = os.path.dirname(output_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
 
     video = ffmpeg.input(video_path).video
     speech = ffmpeg.input(dubbed_audio_path)
@@ -61,7 +64,9 @@ def merge_audio_only(
     dubbed_audio_path: str,
     output_path: str
 ) -> str:
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    out_dir = os.path.dirname(output_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
 
     video = ffmpeg.input(video_path).video
     audio = ffmpeg.input(dubbed_audio_path)

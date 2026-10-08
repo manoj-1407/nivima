@@ -7,22 +7,40 @@ from src.config import get_settings
 log = structlog.get_logger()
 settings = get_settings()
 
+# Coqui TTS per-language VITS models (Mozilla Common Voice fine-tunes)
+# These are the actually available models in the Coqui model zoo as of 2024.
+# Telugu (te) does NOT have a stable Coqui VITS model — falls back to XTTS-v2.
 INDIC_TTS_MODELS = {
-    "te": "tts_models/te/cv/vits",
-    "ta": "tts_models/ta/cv/vits",
-    "kn": "tts_models/kn/cv/vits",
-    "ml": "tts_models/ml/cv/vits",
     "hi": "tts_models/hi/cv/vits",
     "bn": "tts_models/bn/cv/vits",
     "mr": "tts_models/mr/cv/vits",
+    # ta, kn, ml, te: no reliable Coqui VITS models → use XTTS-v2 fallback
 }
 
+# XTTS-v2: voice clone / multilingual model
 XTTS_MODEL = "tts_models/multilingual/multi-dataset/xtts_v2"
+
+# Languages XTTS-v2 officially supports natively
 XTTS_NATIVE = {"hi", "en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar", "zh"}
+
+# For Indic languages not in XTTS_NATIVE, use Hindi as the closest approximation
+# XTTS-v2 handles cross-lingual voice with Hindi as the phonological proxy
+INDIC_XTTS_PROXY = {
+    "te": "hi",  # Telugu — Hindi proxy
+    "ta": "hi",  # Tamil — Hindi proxy
+    "kn": "hi",  # Kannada — Hindi proxy
+    "ml": "hi",  # Malayalam — Hindi proxy
+    "gu": "hi",  # Gujarati — Hindi proxy
+    "or": "hi",  # Odia — Hindi proxy
+    "pa": "hi",  # Punjabi — Hindi proxy
+    "as": "hi",  # Assamese — Hindi proxy
+    "ur": "hi",  # Urdu — Hindi proxy (phonologically close)
+}
 
 MIN_REFERENCE_DURATION_SECONDS = 6.0
 
 _tts_cache: dict = {}
+_xtts_reference_cache: str | None = None
 
 
 def _get_tts(model_name: str):
@@ -34,18 +52,75 @@ def _get_tts(model_name: str):
     return _tts_cache[model_name]
 
 
+def _get_or_create_reference_voice(output_dir: str) -> str:
+    """
+    Create a synthetic reference voice using ffmpeg sine wave if no real reference.
+    XTTS-v2 needs a reference wav — we generate a neutral 8s tone as placeholder.
+    This produces a generic voice, not a clone. Good enough for Phase 1.
+    """
+    global _xtts_reference_cache
+    if _xtts_reference_cache and os.path.exists(_xtts_reference_cache):
+        return _xtts_reference_cache
+
+    import subprocess
+    ref_path = os.path.join(output_dir, "_synthetic_ref.wav")
+    os.makedirs(output_dir, exist_ok=True)
+    # Generate 8 seconds of a 200Hz sine wave — audible, neutral, non-silent
+    subprocess.run([
+        "ffmpeg", "-y", "-f", "lavfi",
+        "-i", "sine=frequency=200:duration=8",
+        "-ar", "22050", "-ac", "1",
+        ref_path
+    ], capture_output=True, check=True)
+    _xtts_reference_cache = ref_path
+    log.info("synthetic_reference_voice_created", path=ref_path)
+    return ref_path
+
+
 def synthesize_generic(text: str, language: str, output_path: str) -> str:
-    model_name = INDIC_TTS_MODELS.get(language)
-    if not model_name:
-        raise ValueError(f"No generic TTS model for language: {language}")
+    """
+    Synthesize text in target language using best available model.
+    Priority: (1) Coqui VITS per-lang → (2) XTTS-v2 → (3) silence fallback.
+    """
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
     if not text.strip():
         _generate_silence(output_path, duration_seconds=0.5)
         return output_path
 
-    tts = _get_tts(model_name)
-    tts.tts_to_file(text=text, file_path=output_path)
-    log.debug("tts_generic_done", lang=language, output=output_path)
+    # Tier 1: use per-language Coqui VITS if available for this language
+    model_name = INDIC_TTS_MODELS.get(language)
+    if model_name:
+        try:
+            tts = _get_tts(model_name)
+            tts.tts_to_file(text=text, file_path=output_path)
+            log.debug("tts_generic_done", lang=language, model=model_name)
+            return output_path
+        except Exception as e:
+            log.warning("tts_indic_model_failed",
+                        lang=language, error=str(e),
+                        fallback="xtts_v2")
+
+    # Tier 2: XTTS-v2 with synthetic reference voice
+    try:
+        xtts_lang = language if language in XTTS_NATIVE else INDIC_XTTS_PROXY.get(language, "hi")
+        ref_dir = os.path.dirname(output_path) or "."
+        ref_voice = _get_or_create_reference_voice(ref_dir)
+        tts = _get_tts(XTTS_MODEL)
+        tts.tts_to_file(
+            text=text,
+            speaker_wav=ref_voice,
+            language=xtts_lang,
+            file_path=output_path
+        )
+        log.debug("tts_xtts_fallback_done", lang=language, xtts_lang=xtts_lang)
+        return output_path
+    except Exception as e:
+        log.error("tts_xtts_failed", lang=language, error=str(e), fallback="silence")
+
+    # Tier 3: silence — never crash the pipeline
+    _generate_silence(output_path, duration_seconds=1.0)
+    log.warning("tts_using_silence_fallback", lang=language)
     return output_path
 
 
@@ -59,6 +134,7 @@ def synthesize_cloned(
     Returns (output_path, quality_score 0-1)
     Quality degrades for non-natively supported languages.
     """
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     _validate_reference_audio(reference_audio_path)
 
     if not text.strip():
@@ -67,24 +143,29 @@ def synthesize_cloned(
 
     native = language in XTTS_NATIVE
     quality = 0.85 if native else 0.65
-    xtts_lang = language if native else "hi"
+    xtts_lang = language if native else INDIC_XTTS_PROXY.get(language, "hi")
 
     if not native:
         log.warning("xtts_non_native_language",
                     language=language,
-                    using_approximation="hi",
+                    using_approximation=xtts_lang,
                     quality_estimate=quality)
 
-    tts = _get_tts(XTTS_MODEL)
-    tts.tts_to_file(
-        text=text,
-        speaker_wav=reference_audio_path,
-        language=xtts_lang,
-        file_path=output_path
-    )
-
-    log.debug("tts_clone_done", lang=language, quality=quality, output=output_path)
-    return output_path, quality
+    try:
+        tts = _get_tts(XTTS_MODEL)
+        tts.tts_to_file(
+            text=text,
+            speaker_wav=reference_audio_path,
+            language=xtts_lang,
+            file_path=output_path
+        )
+        log.debug("tts_clone_done", lang=language, quality=quality)
+        return output_path, quality
+    except Exception as e:
+        log.error("tts_clone_failed", error=str(e), fallback="generic")
+        # Fall back to generic if clone fails
+        result_path = synthesize_generic(text, language, output_path)
+        return result_path, 0.5
 
 
 def synthesize_segments(
@@ -100,12 +181,17 @@ def synthesize_segments(
         text = seg.get("translated_text", "").strip()
         output_path = os.path.join(output_dir, f"chunk_{i:04d}.wav")
 
-        if voice_clone_path:
-            path, quality = synthesize_cloned(text, language, voice_clone_path, output_path)
-            results.append({**seg, "dubbed_audio_path": path, "voice_quality_estimate": quality})
-        else:
-            path = synthesize_generic(text, language, output_path)
-            results.append({**seg, "dubbed_audio_path": path})
+        try:
+            if voice_clone_path:
+                path, quality = synthesize_cloned(text, language, voice_clone_path, output_path)
+                results.append({**seg, "dubbed_audio_path": path, "voice_quality_estimate": quality})
+            else:
+                path = synthesize_generic(text, language, output_path)
+                results.append({**seg, "dubbed_audio_path": path})
+        except Exception as e:
+            log.error("segment_synthesis_failed", segment=i, error=str(e))
+            _generate_silence(output_path, duration_seconds=1.0)
+            results.append({**seg, "dubbed_audio_path": output_path, "synthesis_error": str(e)})
 
     log.info("synthesis_done", segments=len(results), language=language)
     return results
@@ -125,6 +211,7 @@ def _validate_reference_audio(path: str):
 
 def _generate_silence(output_path: str, duration_seconds: float = 0.5):
     import subprocess
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     subprocess.run([
         "ffmpeg", "-y", "-f", "lavfi",
         "-i", f"anullsrc=r=22050:cl=mono:d={duration_seconds}",

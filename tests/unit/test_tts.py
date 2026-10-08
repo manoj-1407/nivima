@@ -13,8 +13,18 @@ from src.tts.synthesizer import (
 
 
 def test_unsupported_generic_language():
-    with pytest.raises(ValueError, match="No generic TTS model"):
-        synthesize_generic("hello", "xx", "/tmp/out.wav")
+    """Language 'xx' has no Coqui model. The new synthesizer falls back to
+    XTTS-v2 then silence — it never raises, the pipeline stays alive."""
+    with tempfile.TemporaryDirectory() as d:
+        out = os.path.join(d, "out.wav")
+        # Mock both _get_tts (XTTS path) and _generate_silence so no ffmpeg needed
+        with patch("src.tts.synthesizer._get_tts") as mock_tts, \
+             patch("src.tts.synthesizer._generate_silence") as mock_silence:
+            mock_tts.side_effect = Exception("XTTS also unavailable")
+            mock_silence.side_effect = lambda p, **kw: None
+            result = synthesize_generic("hello", "xx", out)
+            # Graceful degradation: returns output_path even on total failure
+            assert result == out
 
 
 def test_reference_audio_not_found():

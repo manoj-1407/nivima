@@ -57,29 +57,52 @@ def translate_text(text: str, source_lang: str, target_lang: str) -> str:
 
     _load()
 
-
-    inputs = _tokenizer(
-        text,
-        return_tensors="pt",
-        src_lang=src_code,
-        padding=True,
-        truncation=True,
-        max_length=512
-    )
-
     import torch
+
+    # IndicTrans2 uses forced_bos_token_id for target language — NOT tgt_lang.
+    # The tgt_lang parameter is NLLB-specific and does not exist in IndicTrans2's
+    # generate() method. Using it causes TypeError.
+    try:
+        tgt_token_id = _tokenizer.convert_tokens_to_ids(tgt_code)
+    except Exception:
+        # Some IndicTrans2 versions use lang_code_to_id
+        tgt_token_id = _tokenizer.lang_code_to_id.get(tgt_code, None)
+
+    # Tokenise — IndicTrans2 tokenizer accepts src_lang via its custom tokenizer
+    try:
+        inputs = _tokenizer(
+            text,
+            return_tensors="pt",
+            src_lang=src_code,
+            padding=True,
+            truncation=True,
+            max_length=512
+        )
+    except TypeError:
+        # Fallback: some versions don't accept src_lang directly in __call__
+        inputs = _tokenizer(
+            text,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=512
+        )
+
     if settings.gpu_available:
         inputs = {k: v.to(settings.gpu_device) for k, v in inputs.items()}
 
+    generate_kwargs = {
+        "max_length": 512,
+        "num_beams": 4,
+        "length_penalty": 1.0,
+        "early_stopping": True,
+    }
+
+    if tgt_token_id is not None:
+        generate_kwargs["forced_bos_token_id"] = tgt_token_id
+
     with torch.no_grad():
-        outputs = _model.generate(
-            **inputs,
-            tgt_lang=tgt_code,
-            max_length=512,
-            num_beams=4,
-            length_penalty=1.0,
-            early_stopping=True
-        )
+        outputs = _model.generate(**inputs, **generate_kwargs)
 
     translation = _tokenizer.decode(outputs[0], skip_special_tokens=True)
 
@@ -99,7 +122,15 @@ def translate_segments(
             translated.append({**seg, "translated_text": "", "target_language": target_lang})
             continue
 
-        translation = translate_text(text, source_lang, target_lang)
+        try:
+            translation = translate_text(text, source_lang, target_lang)
+        except Exception as e:
+            log.warning("segment_translation_failed",
+                        error=str(e),
+                        text_preview=text[:50],
+                        fallback="original_text")
+            translation = text  # fallback: pass original text through
+
         translated.append({
             **seg,
             "translated_text": translation,
