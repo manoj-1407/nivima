@@ -1,9 +1,9 @@
 import uuid
 
+import bcrypt as _bcrypt
 import structlog
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,15 @@ from src.storage.db import User, get_db
 
 settings = get_settings()
 log = structlog.get_logger()
-pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def _hash_password(plain: str) -> str:
+    return _bcrypt.hashpw(plain.encode(), _bcrypt.gensalt()).decode()
+
+
+def _verify_password(plain: str, hashed: str) -> bool:
+    try:
+        return _bcrypt.checkpw(plain.encode(), hashed.encode())
+    except Exception:
+        return False
 
 app = FastAPI(
     title="Nivima API",
@@ -58,7 +66,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     user = User(
         id=uuid.uuid4(),
         email=req.email,
-        password_hash=pwd.hash(req.password),
+        password_hash=_hash_password(req.password),
         tier="free",
         monthly_limit_minutes=10,
         minutes_processed_this_month=0
@@ -73,7 +81,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
 @app.post("/api/v1/auth/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
-    if not user or not pwd.verify(req.password, user.password_hash):
+    if not user or not _verify_password(req.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     token = create_access_token(str(user.id))
     return {"token": token, "user_id": str(user.id), "tier": user.tier}
