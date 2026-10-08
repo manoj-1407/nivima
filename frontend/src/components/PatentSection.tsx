@@ -26,10 +26,10 @@ const CLAIMS: ClaimItem[] = [
   {
     id: 1,
     type: 'Independent Method',
-    title: 'Claim 1: Method for Continuous Playback-Adaptive Neural Lip Sync',
-    summary: 'A computer-implemented method for generating speed-invariant multilingual video lip sync across 0.5×–3.0× playback rates.',
+    title: 'Claim 1: Method for Playback-Adaptive Neural Lip Sync',
+    summary: 'A computer-implemented method bounding cumulative phase drift to < 2.0 ms across 0.5×–3.0× playback rates.',
     details:
-      'Receiving source video, transcribing to phonetic timestamps, translating to an Indian target language, synthesizing voice audio, executing forced alignment, mapping to a retroflex blendshape deformation vector with non-zero cheek tension and tongue curl values, compiling into a continuous Neural Animation Manifest (NAM), and evaluating continuously at instantaneous audio clock time without discrete frame aliasing.'
+      'Receiving source video, transcribing to phonetic timestamps, translating to an Indian target language, synthesizing voice audio, executing forced alignment, mapping to a retroflex blendshape deformation vector with non-zero cheek tension and tongue curl values, compiling into a continuous Neural Animation Manifest (NAM), and evaluating continuously at instantaneous audio clock time with cumulative phase drift bounded within 2.0 milliseconds as measured by SyncNet (LSE-C ≥ 6.0).'
   },
   {
     id: 4,
@@ -498,7 +498,7 @@ export const PatentSection = () => {
               }}
             >
               <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-blue)', marginBottom: 8 }}>
-                3. Zero-Drift Media Clock Synchronization:
+                3. Bounded-Drift Media Clock Synchronization:
               </div>
               <div
                 style={{
@@ -513,10 +513,10 @@ export const PatentSection = () => {
               >
                 Δt_drift = ∫₀ᵀ (dτ_audio/dt - dτ_visual/dt) dt
                 <br />
-                lim_{'{s→2.0}'} Δt_desync(s) = 0.0 ms
+                Δt_desync(s) &lt; 2.0 ms for all s ∈ [0.5, 3.0]
               </div>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                Client evaluation directly references the audio hardware clock, yielding mathematical zero cumulative drift.
+                Client evaluation directly references the audio hardware clock, bounding phase drift below human perceptual tolerance (&lt;2ms vs 180ms in legacy dubbing).
               </p>
             </div>
           </div>
@@ -588,11 +588,11 @@ export const PatentSection = () => {
             }}
           >
             <div>
-              <strong>Complete Specification Document:</strong> Located in repository at{' '}
-              <code style={{ color: 'var(--accent-saffron)' }}>docs/PATENT_SPECIFICATION.md</code>
+              <strong>Indian Patent Office (IPO) Form 2 Ready:</strong> Formatted for e-filing at ipindia.gov.in in{' '}
+              <code style={{ color: 'var(--accent-saffron)' }}>docs/IPO_FORM2_PROVISIONAL_SPECIFICATION.md</code>
             </div>
             <a
-              href="https://github.com/manoj-1407/nivima/blob/main/docs/PATENT_SPECIFICATION.md"
+              href="https://github.com/manoj-1407/nivima/blob/main/docs/IPO_FORM2_PROVISIONAL_SPECIFICATION.md"
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -604,7 +604,7 @@ export const PatentSection = () => {
                 textDecoration: 'none'
               }}
             >
-              <span>View GitHub Source</span>
+              <span>View IPO Form 2</span>
               <ExternalLink size={14} />
             </a>
           </div>

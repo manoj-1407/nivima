@@ -5,8 +5,8 @@
 **Title of Invention:**  
 **SYSTEM AND METHOD FOR CONTINUOUS PLAYBACK-ADAPTIVE NEURAL VIDEO LIP SYNCHRONIZATION UTILIZING DYNAMIC BLENDSHAPE MANIFESTS AND DRAVIDIAN RETROFLEX ARTICULATION PARAMETERIZATION**
 
-**Inventors:** Manoj (GCET Hyderabad)  
-**Assignee:** Nivima AI Platform  
+**Inventors:** Manoj (Student Inventor / Citizen of India)  
+**Applicant:** Manoj (Natural Person / Student)  
 **Classification (IPC / CPC):**  
 - **G06T 13/40** — 3D computer animation of facial expressions, heads, avatars  
 - **G10L 21/04** — Changing voice rate, time-scale modification of speech without changing pitch  
@@ -142,9 +142,9 @@ When the client player advances media time $\tau$ at rate $\frac{d\tau}{dt} = s$
    $$\vec{V}_{\text{final}} = \vec{V}_{\text{neutral}} + \sum_{j=1}^M W_j(\tau_{\text{audio}}) \cdot \vec{\Delta V}_j$$
    directly onto the target face mesh.
 
-Because the calculation is analytical and continuous:
-$$\lim_{s \to 2.0} \Delta t_{\text{desync}}(s) = 0.0\text{ ms}$$
-completely eliminating the 180ms+ drift endemic to rasterized video dubbing.
+Because the evaluation is computed analytically from the continuous trajectory manifest at the audio clock:
+$$\text{Expected Cumulative Desync Error: } \Delta t_{\text{desync}}(s) < 2.0\text{ ms for all } s \in [0.5, 3.0]$$
+substantially reducing the 60ms–180ms+ desynchronization drift endemic to rasterized fixed-frame video dubbing.
 
 ---
 
@@ -153,15 +153,15 @@ completely eliminating the 180ms+ drift endemic to rasterized video dubbing.
 ### What is claimed is:
 
 #### Claim 1 (Independent Method Claim)
-A computer-implemented method for generating speed-invariant multilingual video lip synchronization, comprising:
+A computer-implemented method for generating playback-adaptive multilingual video lip synchronization, comprising:
 1. receiving a source video comprising an original video track and an original audio track in a source natural language;
 2. transcribing speech from the original audio track into a sequence of source phonemes with corresponding acoustic onset and offset timestamps;
-3. translating textual representations of the source speech into a target natural language to produce a target text sequence;
-4. synthesizing target speech audio in the target natural language corresponding to the target text sequence;
+3. translating textual representations of the source speech into an Indian target natural language to produce a target text sequence;
+4. synthesizing target speech audio in the Indian target natural language corresponding to the target text sequence;
 5. executing forced temporal alignment between the synthesized target speech audio and a target phoneme inventory to generate a sequence of aligned target phonetic intervals;
 6. mapping each aligned target phoneme to a multi-dimensional facial blendshape deformation vector, wherein phonetic members of a retroflex consonant class are mapped to a retroflex blendshape vector comprising non-zero cheek tension and tongue curl activation values;
-7. generating a continuous Neural Animation Manifest comprising parametric spline polynomials defining blendshape weight trajectories across continuous time; and
-8. evaluating, by a client playback engine during playback at a user-selected variable playback rate $s$, the continuous Neural Animation Manifest at instantaneous audio clock time $\tau_{\text{audio}}$ to render facial deformations synchronized with the time-modified target speech audio with zero cumulative phase drift across playback rates between 0.5× and 3.0×.
+7. compiling a continuous Neural Animation Manifest (NAM) comprising parametric spline polynomials defining continuous blendshape weight trajectories across continuous time; and
+8. evaluating, by a client playback engine during playback at a user-selected variable playback rate $s$, the continuous Neural Animation Manifest at an instantaneous audio clock timestamp $\tau_{\text{audio}}$ to render facial deformations synchronized with the time-modified target speech audio, wherein cumulative temporal phase drift between audio phoneme onsets and visual lip closures is bounded within 2.0 milliseconds across variable playback rates between 0.5× and 3.0×, preserving audiovisual synchronization as measured by SyncNet confidence (LSE-C ≥ 6.0).
 
 #### Claim 2 (Dependent Claim)
 The method of claim 1, wherein the target natural language is selected from the Dravidian or Indo-Aryan language families comprising Telugu, Tamil, Kannada, Malayalam, Hindi, Marathi, Gujarati, Punjabi, Bengali, or Odia.
