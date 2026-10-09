@@ -52,6 +52,21 @@ def _get_tts(model_name: str):
     return _tts_cache[model_name]
 
 
+def unload_tts_models():
+    """Frees Coqui TTS models from GPU memory."""
+    global _tts_cache
+    _tts_cache.clear()
+    import gc
+    gc.collect()
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+    log.info("tts_models_unloaded")
+
+
 def _get_or_create_reference_voice(output_dir: str) -> str:
     """
     Create a synthetic reference voice using ffmpeg sine wave if no real reference.

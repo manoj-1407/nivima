@@ -84,7 +84,7 @@ def check_packages():
             missing.append(display)
 
     if missing:
-        print(f"\n  To install: pip install -r requirements.txt")
+        print("\n  To install: pip install -r requirements.txt")
 
 
 def check_tts_models():
@@ -181,8 +181,12 @@ def check_demo_requirements():
 
 
 def main():
-    print("\n\033[1mNivima Environment Check\033[0m")
-    print("Run this before starting the pipeline.\n")
+    try:
+        from src.hardware_profiler import format_hardware_report
+        print("\n" + format_hardware_report())
+    except Exception:
+        print("\n\033[1mNivima Environment Check\033[0m")
+        print("Run this before starting the pipeline.\n")
 
     check_python()
     check_ffmpeg()
@@ -193,9 +197,9 @@ def main():
     check_services()
     check_demo_requirements()
 
-    print(f"\n\033[1mDone.\033[0m Ready to run:\n")
+    print("\n\033[1mDone.\033[0m Ready to run:\n")
     print("  python scripts/run_phase1_demo.py \\")
-    print("    --video test_hindi.mp4 \\")
+    print("    --video sample_hindi.mp4 \\")
     print("    --source hi \\")
     print("    --targets te \\")
     print("    --output ./output/\n")

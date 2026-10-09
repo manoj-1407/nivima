@@ -45,6 +45,22 @@ def _load():
         log.info("indictrans2_loaded")
 
 
+def unload_translation_model():
+    """Frees IndicTrans2 model from GPU memory."""
+    global _model, _tokenizer
+    _model = None
+    _tokenizer = None
+    import gc
+    gc.collect()
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+    log.info("indictrans2_unloaded")
+
+
 def translate_text(text: str, source_lang: str, target_lang: str) -> str:
     src_code = LANGUAGE_CODES.get(source_lang)
     tgt_code = LANGUAGE_CODES.get(target_lang)

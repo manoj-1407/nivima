@@ -17,12 +17,12 @@ Controls:
 """
 
 import argparse
+import json
 import os
 import sys
-import json
 import time
+
 import cv2
-import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -236,7 +236,7 @@ def main():
     with open(meta_path, "w") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=2)
 
-    print(f"\n=== Session Complete ===")
+    print("\n=== Session Complete ===")
     print(f"Volunteer: {args.volunteer_id}")
     print(f"Recorded: {len(recorded)}/{len(sentences) * 3} ({metadata['completion_pct']}%)")
     print(f"Saved to: {vol_dir}")
