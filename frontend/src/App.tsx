@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './index.css';
-import { Navbar } from './components/Navbar.tsx';
+import { Navbar, PageTab } from './components/Navbar.tsx';
 import { Hero } from './components/Hero.tsx';
 import { DubbingStudio } from './components/DubbingStudio.tsx';
 import { PhonemeVisemeLab } from './components/PhonemeVisemeLab.tsx';
@@ -8,12 +8,13 @@ import { SpeedInvariantSection } from './components/SpeedInvariantSection.tsx';
 import { PatentSection } from './components/PatentSection.tsx';
 import { QCInspector } from './components/QCInspector.tsx';
 import { ApiSection } from './components/ApiSection.tsx';
+import { ExecutionGuide } from './components/ExecutionGuide.tsx';
 
 type Theme = 'dark' | 'light';
 
 function App() {
   const [theme, setTheme] = useState<Theme>('dark');
-  const [activeSection, setActiveSection] = useState<string>('hero');
+  const [activeTab, setActiveTab] = useState<PageTab>('studio');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -23,46 +24,21 @@ function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const handleNavigate = (sectionId: string) => {
-    setActiveSection(sectionId);
-    const el = document.getElementById(sectionId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleSelectTab = (tab: PageTab) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Track active section on scroll
-  useEffect(() => {
-    const sections = ['hero', 'studio', 'phonemes', 'speed', 'patent', 'qc', 'api'];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: '-30% 0px -60% 0px' }
-    );
-
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar
         theme={theme}
         onToggleTheme={handleToggleTheme}
-        onNavigate={handleNavigate}
-        activeSection={activeSection}
+        activeTab={activeTab}
+        onSelectTab={handleSelectTab}
       />
 
-      {/* Ambient BG glow */}
+      {/* Ambient background glow */}
       <div
         aria-hidden="true"
         style={{
@@ -80,71 +56,70 @@ function App() {
         }}
       />
 
-      <Hero
-        onLaunchStudio={() => handleNavigate('studio')}
-        onExploreVisemes={() => handleNavigate('phonemes')}
-      />
+      <div className="bg-grid-pattern" style={{ opacity: 0.35, position: 'fixed', inset: 0, zIndex: -2 }} />
 
-      {/* Section dividers with a faint grid */}
-      <div className="bg-grid-pattern" style={{ opacity: 0.4 }} />
+      {/* Main Tab Content */}
+      <main style={{ flex: 1 }}>
+        {activeTab === 'studio' && (
+          <div>
+            <Hero
+              onLaunchStudio={() => {
+                const el = document.getElementById('studio');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              onExploreVisemes={() => handleSelectTab('lab')}
+            />
+            <div id="studio">
+              <DubbingStudio
+                onOpenLab={() => handleSelectTab('lab')}
+                onOpenQC={() => handleSelectTab('qc')}
+              />
+            </div>
+          </div>
+        )}
 
-      <DubbingStudio />
+        {activeTab === 'lab' && (
+          <div style={{ padding: '20px 0' }}>
+            <PhonemeVisemeLab />
+          </div>
+        )}
 
-      <div
-        style={{
-          height: 1,
-          background: 'linear-gradient(to right, transparent, var(--border-subtle), transparent)',
-          margin: '0 60px'
-        }}
-      />
+        {activeTab === 'speed' && (
+          <div style={{ padding: '20px 0' }}>
+            <SpeedInvariantSection />
+          </div>
+        )}
 
-      <PhonemeVisemeLab />
+        {activeTab === 'qc' && (
+          <div style={{ padding: '20px 0' }}>
+            <QCInspector />
+          </div>
+        )}
 
-      <div
-        style={{
-          height: 1,
-          background: 'linear-gradient(to right, transparent, var(--border-subtle), transparent)',
-          margin: '0 60px'
-        }}
-      />
+        {activeTab === 'patent' && (
+          <div style={{ padding: '20px 0' }}>
+            <PatentSection />
+          </div>
+        )}
 
-      <SpeedInvariantSection />
+        {activeTab === 'api' && (
+          <div style={{ padding: '20px 0' }}>
+            <ApiSection />
+          </div>
+        )}
 
-      <div
-        style={{
-          height: 1,
-          background: 'linear-gradient(to right, transparent, var(--border-subtle), transparent)',
-          margin: '0 60px'
-        }}
-      />
+        {activeTab === 'guide' && (
+          <div style={{ padding: '20px 0' }}>
+            <ExecutionGuide />
+          </div>
+        )}
+      </main>
 
-      <PatentSection />
-
-      <div
-        style={{
-          height: 1,
-          background: 'linear-gradient(to right, transparent, var(--border-subtle), transparent)',
-          margin: '0 60px'
-        }}
-      />
-
-      <QCInspector />
-
-      <div
-        style={{
-          height: 1,
-          background: 'linear-gradient(to right, transparent, var(--border-subtle), transparent)',
-          margin: '0 60px'
-        }}
-      />
-
-      <ApiSection />
-
-      {/* Footer */}
+      {/* Production Footer */}
       <footer
         style={{
           borderTop: '1px solid var(--border-subtle)',
-          padding: '36px 40px',
+          padding: '30px 32px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -154,15 +129,15 @@ function App() {
         }}
       >
         <div>
-          <div style={{ fontSize: '18px', fontWeight: 800, marginBottom: 4 }}>
+          <div style={{ fontSize: '17px', fontWeight: 800, marginBottom: 4 }}>
             <span className="text-gradient-neural">Nivima</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-faint)' }}>
-            Neural Indian Video Interface & Multilingual Animation Platform • Patent-Pending IP
+            Neural Indian Video Interface & Multilingual Animation Platform • Patent-Pending Architecture
           </div>
         </div>
         <div style={{ fontSize: '12px', color: 'var(--text-faint)', textAlign: 'right' }}>
-          <div>Utility Patent Application Drafted under 35 U.S.C. § 111 & Indian Patent Act 1970</div>
+          <div>Utility Patent Application Drafted under Indian Patent Act 1970 & 35 U.S.C. § 111</div>
           <div>© 2026 Manoj (GCET Hyderabad) • MIT Licensed Research Platform</div>
         </div>
       </footer>

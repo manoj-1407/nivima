@@ -1,9 +1,12 @@
+import os
+import shutil
 import uuid
 
 import bcrypt as _bcrypt
 import structlog
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -17,6 +20,8 @@ from src.storage.db import User, get_db
 
 settings = get_settings()
 log = structlog.get_logger()
+
+
 def _hash_password(plain: str) -> str:
     return _bcrypt.hashpw(plain.encode(), _bcrypt.gensalt()).decode()
 
@@ -26,6 +31,7 @@ def _verify_password(plain: str, hashed: str) -> bool:
         return _bcrypt.checkpw(plain.encode(), hashed.encode())
     except Exception:
         return False
+
 
 app = FastAPI(
     title="Nivima API",
@@ -38,6 +44,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
@@ -92,6 +99,46 @@ def health():
     return {"status": "ok", "version": "0.1.0", "service": "Nivima API"}
 
 
-@app.get("/")
-def root():
-    return {"message": "Nivima API", "docs": "/docs"}
+@app.get("/api/v1/system/info")
+def system_info():
+    """Returns GPU, CUDA, and system capabilities for frontend HUD."""
+    cuda_available = False
+    gpu_name = "CPU Only"
+    vram_total_gb = 0.0
+    cuda_version = None
+
+    try:
+        import torch
+        cuda_available = torch.cuda.is_available()
+        if cuda_available:
+            gpu_name = torch.cuda.get_device_name(0)
+            vram_total_gb = round(torch.cuda.get_device_properties(0).total_memory / 1e9, 2)
+            cuda_version = torch.version.cuda
+    except Exception:
+        pass
+
+    ffmpeg_available = shutil.which("ffmpeg") is not None
+
+    return {
+        "status": "online",
+        "service": "Nivima Neural Engine",
+        "version": "0.1.0",
+        "environment": settings.environment,
+        "cuda_available": cuda_available,
+        "gpu_name": gpu_name,
+        "vram_total_gb": vram_total_gb,
+        "cuda_version": cuda_version,
+        "ffmpeg_available": ffmpeg_available,
+        "supported_languages": ["hi", "te", "ta", "kn", "ml", "bn", "mr", "gu", "pa", "or"],
+        "max_video_duration_minutes": 10
+    }
+
+
+# Mount frontend production build if available
+frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "frontend", "dist")
+if os.path.exists(frontend_dist) and os.path.isdir(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+else:
+    @app.get("/")
+    def root():
+        return {"message": "Nivima API", "docs": "/docs", "frontend_status": "Run `npm run build` in frontend/ to serve UI"}
