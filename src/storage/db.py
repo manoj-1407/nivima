@@ -3,12 +3,12 @@ import uuid
 
 from sqlalchemy import (
     ARRAY,
+    JSON,
     Boolean,
     Column,
     DateTime,
     ForeignKey,
     Integer,
-    JSON,
     String,
     Text,
     create_engine,

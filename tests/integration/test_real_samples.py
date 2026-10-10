@@ -9,7 +9,6 @@ import shutil
 from pathlib import Path
 
 import cv2
-import numpy as np
 import pytest
 import soundfile as sf
 
@@ -28,7 +27,7 @@ requires_ffmpeg = pytest.mark.skipif(
 @pytest.fixture(scope="module")
 def manifest():
     assert MANIFEST_PATH.exists(), f"Manifest file missing: {MANIFEST_PATH}"
-    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+    with open(MANIFEST_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -151,7 +150,7 @@ def test_validator_on_clean_lecture():
 
 def test_retroflex_phoneme_viseme_mapping(manifest):
     """TC-04 retroflex phonemes all map to 'retroflex' viseme with cheek_raiser > 0."""
-    from src.translation.phoneme_map import get_viseme, get_blend_weights
+    from src.translation.phoneme_map import get_blend_weights, get_viseme
 
     tc_retroflex = next(
         (tc for tc in manifest["test_cases"] if tc["id"] == "TC-04-RETROFLEX-PHONEMES"),
@@ -177,17 +176,17 @@ def test_retroflex_phoneme_viseme_mapping(manifest):
         weights = get_blend_weights(viseme)
         assert isinstance(weights, dict) and len(weights) > 0
         assert "cheek_raiser" in weights, (
-            f"Retroflex viseme should have cheek_raiser blendshape weight"
+            "Retroflex viseme should have cheek_raiser blendshape weight"
         )
         assert weights["cheek_raiser"] > 0, (
-            f"cheek_raiser should be > 0 for retroflex (tongue-curl creates cheek tension)"
+            "cheek_raiser should be > 0 for retroflex (tongue-curl creates cheek tension)"
         )
 
 
 def test_scene_classifier_on_profile_video():
     """Profile face video should not be classified as FRONTAL_CLEAR."""
+    from src.scene.classifier import Decision, classify_face
     from src.scene.face_analyzer import analyze_frame
-    from src.scene.classifier import classify_face, Decision
     video_path = DATA_DIR / "profile_face_pose.mp4"
     cap = cv2.VideoCapture(str(video_path))
     ret, frame = cap.read()
@@ -199,5 +198,5 @@ def test_scene_classifier_on_profile_video():
     analysis = analyze_frame(frame)
     result = classify_face(analysis)
     assert result.decision != Decision.FRONTAL_CLEAR, (
-        f"Solid-colour test frame incorrectly classified as FRONTAL_CLEAR"
+        "Solid-colour test frame incorrectly classified as FRONTAL_CLEAR"
     )
