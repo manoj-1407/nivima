@@ -38,6 +38,10 @@ node_modules/
 *.wav
 *.mp3
 
+# Preserve standardized test media dataset in repository
+!data/test_samples/
+!data/test_samples/*
+
 *.npz
 *.bin
 *.pt

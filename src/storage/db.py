@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    JSON,
     String,
     Text,
     create_engine,
@@ -20,6 +21,10 @@ from sqlalchemy.sql import func
 from src.config import get_settings
 
 settings = get_settings()
+
+# Dialect-agnostic types for SQLite & PostgreSQL compatibility
+CompatArray = JSON().with_variant(ARRAY(String(10)), "postgresql")
+CompatJson = JSON().with_variant(JSONB, "postgresql")
 
 _is_sqlite = settings.database_url.startswith("sqlite")
 _engine_kwargs = {"pool_pre_ping": True} if not _is_sqlite else {"connect_args": {"check_same_thread": False}}
@@ -86,7 +91,7 @@ class VoiceClone(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
     display_name = Column(String(255), nullable=False)
     reference_audio_path = Column(String(500), nullable=False)
-    supported_languages = Column(ARRAY(String(10)))
+    supported_languages = Column(CompatArray)
     consent_recorded_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_active = Column(Boolean, default=True)
@@ -102,7 +107,7 @@ class Job(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     status = Column(SAEnum(JobStatus), default=JobStatus.queued)
     source_language = Column(String(10), nullable=False)
-    target_languages = Column(ARRAY(String(10)), nullable=False)
+    target_languages = Column(CompatArray, nullable=False)
     voice_clone_id = Column(UUID(as_uuid=True), ForeignKey("voice_clones.id"), nullable=True)
     processing_tier = Column(String(20), default="speed")
 
@@ -111,7 +116,7 @@ class Job(Base):
     source_resolution = Column(String(20), nullable=True)
     source_fps = Column(String(10), nullable=True)
 
-    output_paths = Column(JSONB, default={})
+    output_paths = Column(CompatJson, default={})
 
     current_stage = Column(String(50), nullable=True)
     progress_pct = Column(Integer, default=0)

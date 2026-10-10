@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 
 import structlog
@@ -41,7 +42,7 @@ def reanimate_chunk(
     with tempfile.TemporaryDirectory():
         result = subprocess.run(
             [
-                "python", "-m", "musetalk.inference",
+                sys.executable, "-m", "musetalk.inference",
                 "--video_path", video_chunk_path,
                 "--audio_path", dubbed_audio_path,
                 "--output_path", output_path,
@@ -86,7 +87,7 @@ def setup_musetalk():
     ], check=True)
 
     subprocess.run([
-        "pip", "install", "-r",
+        sys.executable, "-m", "pip", "install", "-r",
         os.path.join(MUSETALK_REPO, "requirements.txt")
     ], check=True)
 

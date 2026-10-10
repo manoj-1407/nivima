@@ -239,5 +239,10 @@ def apply_domain_preservation(
 def restore_preserved_terms(text: str, placeholder_map: dict) -> str:
     restored = text
     for placeholder, original in placeholder_map.items():
+        # First try exact replace
         restored = restored.replace(placeholder, original)
+        # Also try regex for case-insensitive or spaced tokens: e.g. __ TERM_0 __
+        term_num = placeholder.strip("_").split("_")[-1]
+        pattern = re.compile(rf"__\s*term_{term_num}\s*__", re.IGNORECASE)
+        restored = pattern.sub(original, restored)
     return restored

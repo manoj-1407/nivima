@@ -13,25 +13,33 @@ _face_mesh = None
 def _get_face_detection():
     global _face_detection
     if _face_detection is None:
-        import mediapipe as mp
-        _face_detection = mp.solutions.face_detection.FaceDetection(
-            min_detection_confidence=0.5,
-            model_selection=1
-        )
+        try:
+            import mediapipe as mp
+            _face_detection = mp.solutions.face_detection.FaceDetection(
+                min_detection_confidence=0.5,
+                model_selection=1
+            )
+        except Exception as e:
+            log.warning("mediapipe_face_detection_unavailable", error=str(e))
+            _face_detection = "opencv_fallback"
     return _face_detection
 
 
 def _get_face_mesh():
     global _face_mesh
     if _face_mesh is None:
-        import mediapipe as mp
-        _face_mesh = mp.solutions.face_mesh.FaceMesh(
-            static_image_mode=False,
-            max_num_faces=2,
-            refine_landmarks=True,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
-        )
+        try:
+            import mediapipe as mp
+            _face_mesh = mp.solutions.face_mesh.FaceMesh(
+                static_image_mode=False,
+                max_num_faces=2,
+                refine_landmarks=True,
+                min_detection_confidence=0.5,
+                min_tracking_confidence=0.5
+            )
+        except Exception as e:
+            log.warning("mediapipe_face_mesh_unavailable", error=str(e))
+            _face_mesh = "opencv_fallback"
     return _face_mesh
 
 
@@ -54,11 +62,48 @@ MOUTH_LOWER = [146, 91, 181, 84, 17, 314, 405, 321, 375, 291]
 MOUTH_ALL = MOUTH_UPPER + MOUTH_LOWER
 
 
+
+def _no_face_result() -> "FaceAnalysis":
+    return FaceAnalysis(
+        face_count=0, confidence=0.0,
+        yaw_deg=0.0, pitch_deg=0.0, roll_deg=0.0,
+        occlusion_score=0.0, face_area_pct=0.0,
+        face_bbox=None, mouth_landmarks=[]
+    )
+
+
 def analyze_frame(frame: np.ndarray) -> FaceAnalysis:
     h, w = frame.shape[:2]
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     detection = _get_face_detection()
+    if detection == "opencv_fallback":
+        # OpenCV 4.5.4+ has FaceDetectorYN (DNN-based, no Haar cascade)
+        # OpenCV 5.0 removed CascadeClassifier entirely — use FaceDetectorYN.
+        try:
+            # FaceDetectorYN requires an ONNX model — try it if available
+            detector_yn = getattr(cv2, "FaceDetectorYN", None)
+            if detector_yn is not None:
+                det = detector_yn.create("face_detection_yunet_2023mar.onnx", "", (w, h))
+                _, faces = det.detect(frame)
+                if faces is None or len(faces) == 0:
+                    return _no_face_result()
+                fx, fy, fw, fh = int(faces[0][0]), int(faces[0][1]), int(faces[0][2]), int(faces[0][3])
+                return FaceAnalysis(
+                    face_count=len(faces), confidence=float(faces[0][14]),
+                    yaw_deg=0.0, pitch_deg=0.0, roll_deg=0.0,
+                    occlusion_score=0.0,
+                    face_area_pct=round((fw * fh) / (w * h), 4),
+                    face_bbox=(fx / w, fy / h, fw / w, fh / h),
+                    mouth_landmarks=[(int(fx + fw * 0.5), int(fy + fh * 0.8))]
+                )
+        except Exception as e:
+            log.debug("opencv_face_detector_yn_failed", error=str(e))
+
+        # Final graceful fallback: no face detected (better than crashing)
+        log.warning("face_detection_no_backend_available_returning_no_face")
+        return _no_face_result()
+
     det_results = detection.process(rgb)
 
     if not det_results.detections:

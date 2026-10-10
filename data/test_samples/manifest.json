@@ -1,0 +1,102 @@
+{
+  "version": "1.0",
+  "description": "Nivima Real Multi-Scenario Test Media Dataset",
+  "test_cases": [
+    {
+      "id": "TC-01-CLEAN-LECTURE",
+      "file": "hindi_lecture_optics.mp4",
+      "audio_companion": "hindi_lecture_optics.wav",
+      "type": "video",
+      "duration_seconds": 8.0,
+      "domain": "EdTech STEM (Physics)",
+      "source_language": "hi",
+      "ground_truth_transcript": "नमस्ते छात्रों, आज हम परावर्तन के नियमों को विस्तार से समझेंगे।",
+      "target_evaluation": {
+        "te": "నమస్కారం విద్యార్థులారా, ఈరోజు మనం పరావర్తన నియమాలను నేర్చుకుందాం.",
+        "ta": "வணக்கம் மாணவர்களே, இன்று நாம் எதிரொளிப்பு விதிகளை கற்போம்."
+      },
+      "tests": [
+        "validation",
+        "asr_accuracy",
+        "indictrans_translation",
+        "tts_synthesis",
+        "end_to_end"
+      ]
+    },
+    {
+      "id": "TC-02-SPEECH-WITH-MUSIC",
+      "file": "hindi_dialogue_music.mp4",
+      "audio_companion": "hindi_dialogue_music.wav",
+      "type": "video",
+      "duration_seconds": 8.0,
+      "domain": "Cinema & Dialogue",
+      "source_language": "hi",
+      "acoustic_condition": "Mixed speech + background instrumental (-12 dB)",
+      "tests": [
+        "demucs_separation",
+        "vocal_isolation_snr",
+        "background_stem_preservation"
+      ]
+    },
+    {
+      "id": "TC-03-FAST-TEMPO-MISMATCH",
+      "file": "fast_speech_mismatch.wav",
+      "type": "audio",
+      "duration_seconds": 3.0,
+      "speech_rate_wpm": 220,
+      "tests": [
+        "audio_adjuster_stretching",
+        "ratio_flagging_threshold",
+        "speed_invariance"
+      ]
+    },
+    {
+      "id": "TC-04-RETROFLEX-PHONEMES",
+      "file": "retroflex_phonemes.wav",
+      "type": "audio",
+      "duration_seconds": 5.0,
+      "target_phonemes": [
+        "ʈ",
+        "ɖ",
+        "ɳ",
+        "ɻ",
+        "ɭ"
+      ],
+      "target_scripts": [
+        "ట",
+        "డ",
+        "ణ",
+        "ழ",
+        "ள"
+      ],
+      "tests": [
+        "retroflex_viseme_mapping",
+        "blendshape_cheek_raiser",
+        "tongue_curl_activation"
+      ]
+    },
+    {
+      "id": "TC-05-PROFILE-FACE-YAW",
+      "file": "profile_face_pose.mp4",
+      "type": "video",
+      "duration_seconds": 6.0,
+      "visual_condition": "Head yaw angle > 45 degrees, mouth profile",
+      "tests": [
+        "scene_classifier_routing",
+        "profile_fallback",
+        "lip_sync_skip_gate"
+      ]
+    },
+    {
+      "id": "TC-06-SHORT-DURATION-BOUNDARY",
+      "file": "short_clip_3sec.mp4",
+      "type": "video",
+      "duration_seconds": 3.0,
+      "tests": [
+        "duration_validation_boundary",
+        "single_chunk_extractor",
+        "fast_preview"
+      ]
+    }
+  ]
+}

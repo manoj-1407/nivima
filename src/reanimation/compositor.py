@@ -139,6 +139,9 @@ def composite_video_chunks(
             cv2.imwrite(out_path, orig)
             continue
 
+        if reanim.shape != orig.shape:
+            reanim = cv2.resize(reanim, (orig.shape[1], orig.shape[0]))
+
         lms = mouth_landmarks_per_frame.get(idx, [])
         mask = build_lip_mask(orig, lms)
 

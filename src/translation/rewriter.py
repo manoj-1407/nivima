@@ -8,6 +8,19 @@ log = structlog.get_logger()
 settings = get_settings()
 
 MODEL = "llama3.1:8b"
+_ollama_available: bool | None = None
+
+
+def _check_ollama() -> bool:
+    global _ollama_available
+    if _ollama_available is not None:
+        return _ollama_available
+    try:
+        r = httpx.get(f"{settings.ollama_url}/api/tags", timeout=0.8)
+        _ollama_available = (r.status_code == 200)
+    except Exception:
+        _ollama_available = False
+    return _ollama_available
 
 
 def rewrite_for_timing(
@@ -22,6 +35,9 @@ def rewrite_for_timing(
     Rewrites translated_text to fit duration_ms and match critical phonemes at key timestamps.
     critical_phonemes: [{"timestamp_ms": int, "phoneme": str, "viseme": str}]
     """
+    if not _check_ollama():
+        return translated_text
+
     phoneme_hints = ""
     if critical_phonemes:
         hints = []
@@ -54,7 +70,7 @@ OUTPUT: Return ONLY the rewritten {target_lang} text. No explanation. No quotes.
         response = httpx.post(
             f"{settings.ollama_url}/api/generate",
             json={"model": MODEL, "prompt": prompt, "stream": False},
-            timeout=60.0
+            timeout=10.0
         )
         response.raise_for_status()
         result = response.json()

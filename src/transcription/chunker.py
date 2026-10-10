@@ -48,6 +48,11 @@ def chunk_audio_by_scenes(
 
     try:
         scenes = detect_scenes(video_path)
+        # Single-shot videos (e.g. continuous lectures/interviews) yield 0 scene cuts.
+        # Fallback to fixed time chunking so the video is never skipped!
+        if not scenes:
+            log.info("no_scene_cuts_found_using_fixed_chunks", video=video_path)
+            scenes = _fixed_chunks(audio_path)
     except Exception as e:
         log.warning("scene_detection_failed", error=str(e), fallback="fixed_chunks")
         scenes = _fixed_chunks(audio_path)
@@ -104,15 +109,12 @@ def _split_at_silence(
     end_ms: int
 ) -> list[tuple[int, int]]:
     """
-    Split long scene at silence boundaries using WebRTC VAD.
+    Split long scene at silence boundaries.
     Fallback: fixed 25s sub-chunks.
     """
     try:
-
-        # Simple midpoint split if VAD fails
         mid = (start_ms + end_ms) // 2
         return [(start_ms, mid), (mid, end_ms)]
-
     except Exception:
         step = MAX_CHUNK_DURATION_MS
         chunks = []
@@ -125,14 +127,22 @@ def _split_at_silence(
 
 
 def _fixed_chunks(audio_path: str, chunk_ms: int = 25000) -> list[tuple[float, float]]:
-    import json
-    import subprocess
-    result = subprocess.run(
-        ["ffprobe", "-v", "quiet", "-print_format", "json",
-         "-show_format", audio_path],
-        capture_output=True, text=True
-    )
-    duration = float(json.loads(result.stdout)["format"]["duration"])
+    import soundfile as sf
+    try:
+        info = sf.info(audio_path)
+        duration = float(info.duration)
+    except Exception:
+        import json
+        result = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json",
+             "-show_format", audio_path],
+            capture_output=True, text=True
+        )
+        try:
+            duration = float(json.loads(result.stdout)["format"]["duration"])
+        except Exception:
+            duration = 30.0
+
     chunks = []
     start = 0.0
     while start < duration:
