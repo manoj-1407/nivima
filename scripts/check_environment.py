@@ -11,13 +11,19 @@ import os
 import subprocess
 import sys
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-def ok(msg): print(f"  \033[92m✓\033[0m {msg}")
-def warn(msg): print(f"  \033[93m⚠\033[0m {msg}")
-def fail(msg): print(f"  \033[91m✗\033[0m {msg}")
-def section(title): print(f"\n\033[1m{'='*55}\033[0m\n  {title}\n{'='*55}")
+def ok(msg): print(f"  [OK] {msg}")
+def warn(msg): print(f"  [!!] {msg}")
+def fail(msg): print(f"  [XX] {msg}")
+def section(title): print(f"\n{'='*55}\n  {title}\n{'='*55}")
 
 
 def check_python():
