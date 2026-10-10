@@ -69,24 +69,35 @@ def unload_tts_models():
 
 def _get_or_create_reference_voice(output_dir: str) -> str:
     """
-    Create a synthetic reference voice using ffmpeg sine wave if no real reference.
-    XTTS-v2 needs a reference wav — we generate a neutral 8s tone as placeholder.
-    This produces a generic voice, not a clone. Good enough for Phase 1.
+    Create a synthetic reference voice for XTTS-v2 when no real speaker reference exists.
+    Uses ffmpeg if available, falls back to numpy+soundfile (no ffmpeg required).
     """
     global _xtts_reference_cache
     if _xtts_reference_cache and os.path.exists(_xtts_reference_cache):
         return _xtts_reference_cache
 
-    import subprocess
+    import shutil
     ref_path = os.path.join(output_dir, "_synthetic_ref.wav")
     os.makedirs(output_dir, exist_ok=True)
-    # Generate 8 seconds of a 200Hz sine wave — audible, neutral, non-silent
-    subprocess.run([
-        "ffmpeg", "-y", "-f", "lavfi",
-        "-i", "sine=frequency=200:duration=8",
-        "-ar", "22050", "-ac", "1",
-        ref_path
-    ], capture_output=True, check=True)
+
+    # Prefer ffmpeg for clean sine wave
+    if shutil.which("ffmpeg"):
+        import subprocess
+        subprocess.run([
+            "ffmpeg", "-y", "-f", "lavfi",
+            "-i", "sine=frequency=200:duration=8",
+            "-ar", "22050", "-ac", "1",
+            ref_path
+        ], capture_output=True, check=True)
+    else:
+        # Pure Python fallback — numpy sine wave written directly with soundfile
+        import numpy as np
+        import soundfile as sf
+        sr = 22050
+        t = np.linspace(0, 8.0, int(sr * 8.0), endpoint=False)
+        wave = (np.sin(2 * np.pi * 200 * t) * 0.4).astype(np.float32)
+        sf.write(ref_path, wave, sr)
+
     _xtts_reference_cache = ref_path
     log.info("synthetic_reference_voice_created", path=ref_path)
     return ref_path
@@ -225,10 +236,19 @@ def _validate_reference_audio(path: str):
 
 
 def _generate_silence(output_path: str, duration_seconds: float = 0.5):
-    import subprocess
+    """Write a silent audio file. Uses ffmpeg if available, numpy+soundfile otherwise."""
+    import shutil
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
-    subprocess.run([
-        "ffmpeg", "-y", "-f", "lavfi",
-        "-i", f"anullsrc=r=22050:cl=mono:d={duration_seconds}",
-        output_path
-    ], capture_output=True)
+    if shutil.which("ffmpeg"):
+        import subprocess
+        subprocess.run([
+            "ffmpeg", "-y", "-f", "lavfi",
+            "-i", f"anullsrc=r=22050:cl=mono:d={duration_seconds}",
+            output_path
+        ], capture_output=True)
+    else:
+        import numpy as np
+        import soundfile as sf
+        sr = 22050
+        silence = np.zeros(int(sr * duration_seconds), dtype=np.float32)
+        sf.write(output_path, silence, sr)
