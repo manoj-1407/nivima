@@ -19,9 +19,20 @@ import sys
 import tempfile
 import time
 
+# Ensure UTF-8 output encoding on Windows consoles
+if sys.platform == "win32":
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.hardware_profiler import estimate_processing_eta, format_hardware_report
+
 
 
 def banner(text: str):
@@ -78,23 +89,23 @@ def main():
     from src.ingestion.validator import ValidationError, validate_and_extract_metadata
     try:
         meta = validate_and_extract_metadata(args.video)
-        print(f"  ✓ Duration: {meta.duration_seconds:.1f}s "
+        print(f"  [OK] Duration: {meta.duration_seconds:.1f}s "
               f"| Resolution: {meta.resolution} "
               f"| FPS: {meta.fps} "
               f"| Audio: {'Yes' if meta.has_audio else 'No'}")
     except ValidationError as e:
-        print(f"  ✗ Validation failed: {e}")
+        print(f"  [ERROR] Validation failed: {e}")
         sys.exit(1)
 
     if not meta.has_audio:
-        print("  ✗ Video has no audio track. Cannot proceed.")
+        print("  [ERROR] Video has no audio track. Cannot proceed.")
         sys.exit(1)
 
     # Calculate and display ETA for user
     eta_info = estimate_processing_eta(meta.duration_seconds, len(args.targets))
-    print(f"\n  ⏱  ESTIMATED PIPELINE ETA: ~{eta_info['total_eta_seconds']:.0f} seconds "
+    print(f"\n  [ETA] ESTIMATED PIPELINE ETA: ~{eta_info['total_eta_seconds']:.0f} seconds "
           f"({eta_info['speed_ratio']:.2f}x realtime on {eta_info['gpu_name']})")
-    print(f"     • Separation: ~{eta_info['breakdown']['vocal_separation']}s | "
+    print(f"     - Separation: ~{eta_info['breakdown']['vocal_separation']}s | "
           f"ASR: ~{eta_info['breakdown']['whisper_asr']}s | "
           f"Translation: ~{eta_info['breakdown']['translation']}s | "
           f"TTS: ~{eta_info['breakdown']['voice_synthesis']}s")
@@ -112,9 +123,9 @@ def main():
             speech_path, bg_path = separate_audio(
                 audio_path, os.path.join(tmpdir, "separated")
             )
-            print("  ✓ Speech and background audio separated successfully")
+            print("  [OK] Speech and background audio separated successfully")
         except Exception as e:
-            print(f"  ⚠ Demucs separation fell back ({e}), continuing with original audio")
+            print(f"  [WARN] Demucs separation fell back ({e}), continuing with original audio")
             speech_path = audio_path
             bg_path = fallback_silence_background(tmpdir, meta.duration_seconds)
 
@@ -127,10 +138,10 @@ def main():
         segments = transcribe_audio(speech_path, language=args.source)
         seg_dicts = segments_to_dict(segments)
         total_words = sum(len(s["words"]) for s in seg_dicts)
-        print(f"  ✓ {len(segments)} segments transcribed (~{total_words} words)")
+        print(f"  [OK] {len(segments)} segments transcribed (~{total_words} words)")
 
         if not segments:
-            print("  ✗ No speech detected in video. Exiting.")
+            print("  [ERROR] No speech detected in video. Exiting.")
             sys.exit(1)
 
         preview = " ".join(s["text"] for s in seg_dicts[:3])
@@ -151,7 +162,7 @@ def main():
             rewritten = rewrite_segments(translated, args.source, target)
             all_translated[target] = rewritten
             sample = rewritten[0]["translated_text"] if rewritten else ""
-            print(f"  ✓ {target.upper()}: \"{sample[:80]}...\"")
+            print(f"  [OK] {target.upper()}: \"{sample[:80]}...\"")
 
         unload_translation_model()
         free_vram()
@@ -170,7 +181,7 @@ def main():
             all_synthesized[target] = synthesized
             clone_note = f"(voice clone ~{65 if target != 'hi' else 85}% similarity)" \
                 if args.voice else "(generic IndicTTS)"
-            print(f"  ✓ {target.upper()} voice synthesized {clone_note}")
+            print(f"  [OK] {target.upper()} voice synthesized {clone_note}")
 
         unload_tts_models()
         free_vram()
@@ -209,7 +220,7 @@ def main():
             merge_audio_video(args.video, combined, bg_path, output_path)
 
             size_mb = os.path.getsize(output_path) / (1024 * 1024)
-            print(f"  ✓ {target.upper()} → {output_path} ({size_mb:.1f} MB)"
+            print(f"  [OK] {target.upper()} -> {output_path} ({size_mb:.1f} MB)"
                   f"{f' | {flagged} segments flagged for sync' if flagged else ''}")
 
     elapsed = time.time() - t_start
@@ -218,12 +229,12 @@ def main():
     banner("Pipeline Completed Successfully!")
     print(f"  Actual Processing Time: {elapsed:.1f}s (Estimated: {eta_info['total_eta_seconds']:.0f}s)")
     print(f"  Processing Speed Ratio: {ratio:.2f}x realtime "
-          f"({'⚡ Faster than realtime' if ratio < 1 else 'Slower than realtime'})")
+          f"({'Faster than realtime' if ratio < 1 else 'Slower than realtime'})")
     print("\n  Generated Dubbed Videos:")
     for target in args.targets:
         out = os.path.join(args.output, f"output_{target}.mp4")
         if os.path.exists(out):
-            print(f"    🎬 {out}")
+            print(f"    - {out}")
 
     print("\n  All steps finished with 0 errors.\n")
 

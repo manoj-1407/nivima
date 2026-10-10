@@ -122,26 +122,29 @@ def estimate_processing_eta(video_duration_seconds: float, target_count: int = 1
 
 def format_hardware_report() -> str:
     hw = detect_hardware()
+    ok_sym = "[OK]" if sys.platform == "win32" and getattr(sys.stdout, "encoding", "").lower() not in ("utf-8", "utf8") else "✓"
+    no_sym = "[MISSING]" if sys.platform == "win32" and getattr(sys.stdout, "encoding", "").lower() not in ("utf-8", "utf8") else "✗"
     lines = [
-        "═" * 60,
+        "=" * 60,
         "  Nivima Hardware & Capability Profile",
-        "═" * 60,
+        "=" * 60,
         f"  OS:              {hw.os_name}",
         f"  Python:          {hw.python_version}",
-        f"  CPU Cores:       {hw.cpu_cores} cores • {hw.ram_gb:.1f} GB RAM",
+        f"  CPU Cores:       {hw.cpu_cores} cores | {hw.ram_gb:.1f} GB RAM",
         f"  GPU Hardware:    {hw.gpu_name}",
         f"  VRAM Available:  {hw.vram_gb:.1f} GB" if hw.gpu_available else "  VRAM Available:  0 GB (CPU Mode)",
         f"  CUDA Version:    {hw.cuda_version or 'N/A'}",
         f"  Hardware Tier:   {hw.tier.replace('_', ' ').title()}",
-        f"  FFmpeg Engine:   {'✓ Detected' if hw.ffmpeg_installed else '✗ Missing on PATH'}",
-        "═" * 60,
+        f"  FFmpeg Engine:   {ok_sym + ' Detected' if hw.ffmpeg_installed else no_sym + ' Missing on PATH'}",
+        "=" * 60,
     ]
 
     if hw.tier == "entry_laptop_gpu":
-        lines.append("  💡 Laptop Optimization: 6GB VRAM detected (RTX 4050/3060).")
-        lines.append("     Auto-activating int8_float16 Whisper + sequential VRAM flushing.")
+        lines.append("  [INFO] Laptop Optimization: 6GB VRAM detected (RTX 4050/3060).")
+        lines.append("         Auto-activating int8_float16 Whisper + sequential VRAM flushing.")
     elif hw.tier == "cpu":
-        lines.append("  ⚠ WARNING: Running in CPU-only mode. GPU acceleration is inactive.")
-        lines.append("     Execution will take ~7x video length. Install PyTorch with CUDA!")
+        lines.append("  [WARNING] Running in CPU-only mode. GPU acceleration is inactive.")
+        lines.append("            Execution will take ~7x video length. Install PyTorch with CUDA for GPU speed.")
 
     return "\n".join(lines)
+
