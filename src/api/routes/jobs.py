@@ -70,30 +70,30 @@ async def submit_job(
     duration_minutes = metadata.duration_seconds / 60.0
     workload_minutes = round(duration_minutes * target_count, 2)
 
-    # Atomic user query with row-level lock to prevent concurrent quota race conditions
+    job_id = uuid.uuid4()
+    s3_key = f"uploads/{job_id}/source{os.path.splitext(video.filename or '.mp4')[1]}"
+
+    # Upload to storage first BEFORE acquiring database locks to avoid prolonged row contention
+    try:
+        upload_file(tmp_path, s3_key, content_type=video.content_type or "video/mp4")
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+    # Short atomic transaction for quota reservation and job creation
     user = db.query(User).filter(User.id == current_user.id).with_for_update().first()
     if not user:
-        os.unlink(tmp_path)
         raise HTTPException(status_code=404, detail="User not found")
 
     limit = TIER_LIMITS.get(user.tier, 10)
     used = float(user.minutes_processed_this_month or 0.0)
 
     if used + workload_minutes > limit:
-        os.unlink(tmp_path)
         raise HTTPException(
             status_code=402,
             detail=f"Minute limit exceeded. Used: {used:.1f}/{limit} min. "
                    f"Job requires {workload_minutes:.1f} min ({target_count} target languages)."
         )
-
-    job_id = uuid.uuid4()
-    s3_key = f"uploads/{job_id}/source{os.path.splitext(video.filename or '.mp4')[1]}"
-    try:
-        upload_file(tmp_path, s3_key, content_type=video.content_type or "video/mp4")
-    finally:
-        if os.path.exists(tmp_path):
-            os.unlink(tmp_path)
 
     job = Job(
         id=job_id,
@@ -110,8 +110,6 @@ async def submit_job(
         output_paths={}
     )
     db.add(job)
-
-    # Update user usage with floating-point precision
     user.minutes_processed_this_month = round(used + workload_minutes, 2)
     db.commit()
 
@@ -119,9 +117,15 @@ async def submit_job(
         process_job.delay(str(job_id))
     except Exception as e:
         log.error("celery_dispatch_failed", job_id=str(job_id), error=str(e))
-        job.status = JobStatus.failed
-        job.error_message = f"Job dispatch failed: {e}"
-        user.minutes_processed_this_month = round(used, 2)
+        # Revert ONLY the specific workload_minutes reserved by this job, avoiding stale aggregate overwrites
+        user_revert = db.query(User).filter(User.id == current_user.id).with_for_update().first()
+        if user_revert:
+            curr = float(user_revert.minutes_processed_this_month or 0.0)
+            user_revert.minutes_processed_this_month = max(0.0, round(curr - workload_minutes, 2))
+        job_revert = db.query(Job).filter(Job.id == job_id).first()
+        if job_revert:
+            job_revert.status = JobStatus.failed
+            job_revert.error_message = f"Job dispatch failed: {e}"
         db.commit()
         raise HTTPException(status_code=500, detail="Failed to dispatch processing job to worker queue")
 
