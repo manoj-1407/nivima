@@ -20,9 +20,14 @@ To eliminate evaluation bias, the scoring rubric is locked prior to testing. Two
 | **Pronunciation & Prosody** | Robotic pacing, incorrect phoneme stresses, unnatural pitch resets. | Understandable cadence, but unnatural sentence boundary pauses. | Native regional speaker inflection, appropriate pedagogical emphasis. |
 | **A/V Synchronization** | Severe drift (>250ms), jarring visual/auditory mismatch. | Timing acceptable for screen shares; noticeable lip drift on talking heads. | Tight alignment (<=40ms drift), natural articulatory transitions. |
 
-### Critical Terminology Error Count (Tracked Separately)
-* **Definition**: Any error in a formula, unit, proper noun, scientific principle, or definition that renders the educational explanation factually incorrect.
-* **Metric**: Total count of critical errors per 5-minute lecture. Target: **0 critical errors** after human-in-the-loop review.
+> **Synchronization Measurement Definition**: A/V synchronization is evaluated through two distinct channels:
+> 1. **Perceptual Human Rating**: Evaluated on the 1–5 scale above by bilingual educators.
+> 2. **Empirical Landmark Offset**: Measured by calculating the absolute temporal offset ($|t_{\text{audio}} - t_{\text{video}}|$) between acoustic plosive/bilabial energy bursts in the waveform and corresponding mouth aperture minima extracted via MediaPipe facial landmarks. Reports must state both **Median** and **95th-percentile** absolute synchronization error across speech segments.
+
+### Critical Terminology Error Accounting (Dual Standard)
+* **Definition**: Any error in a scientific formula, unit, proper noun, technical concept, or physical law that alters pedagogical meaning.
+* **Raw Model Error Rate**: All critical errors produced by the automated pipeline prior to human review are cataloged. This directly measures raw model accuracy and determines review labor overhead.
+* **Delivered Error Standard (Hard Ceiling)**: **Exactly 0 unresolved critical errors** in the final delivered video. Any delivered video containing an uncorrected critical error is classified as an objective delivery failure.
 
 ---
 
@@ -69,9 +74,9 @@ To prevent confirmation bias, **all four criteria must pass simultaneously**. A 
 
 | Gate | Metric | Pass Condition | Fail Action |
 | :--- | :--- | :--- | :--- |
-| **Gate 1: Technical Quality** | Blind Educator Benchmark across 3 STEM lectures | Nivima achieves mean score $\ge 3.8/5.0$ and $\le 1$ critical terminology error per lecture. | If quality fails: Revert to core research prototype or deprecate generator. |
+| **Gate 1: Technical Quality** | Blind Educator Benchmark across 3 STEM lectures | Mean score $\ge 3.8/5.0$, **0 unresolved critical errors in delivered output**, and raw model critical errors $\le 2$ per 5-minute lecture. | If quality fails: Revert to core research prototype or deprecate generator. |
 | **Gate 2: Buyer Willingness-to-Pay** | 10 Customer Discovery Interviews | At least 3 qualified decision-makers confirm active budget $\ge ₹40\text{/output minute}$. | If WTP $< ₹30$: Conclude B2B EdTech SaaS thesis; discontinue commercialization. |
-| **Gate 3: Direct Delivery Margin** | 3-Hour Paid Pilot (180 output minutes) | Total direct cost (Compute + Review + Revisions) $\le ₹24.00\text{/minute}$ ($>40\%$ gross margin). | If delivery cost $> ₹24$: Automated pipeline is insufficient; conclude business experiment. |
+| **Gate 3: All-Inclusive Delivery Margin** | 3-Hour Paid Pilot (180 output minutes) | Total direct cost (Compute + Storage/Egress + Failed Reruns + Review Wages + Customer Revision Labor) $\le ₹24.00\text{/minute}$ ($>40\%$ gross margin). | If delivery cost $> ₹24$: Automated pipeline is insufficient; conclude business experiment. |
 | **Gate 4: Commercial Repeatability** | Pilot Conclusion | Pilot customer commits to a paid contract for a second batch at $\ge ₹40\text{/minute}$. | If customer churns post-pilot: Workflow lacks retention; halt startup roadmap. |
 
 ---
