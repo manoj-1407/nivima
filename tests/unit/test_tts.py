@@ -6,6 +6,7 @@ import pytest
 
 from src.tts.synthesizer import (
     XTTS_NATIVE,
+    SpeechSynthesisError,
     _validate_reference_audio,
     synthesize_cloned,
     synthesize_generic,
@@ -13,17 +14,21 @@ from src.tts.synthesizer import (
 
 
 def test_unsupported_generic_language():
-    """Language 'xx' has no Coqui model. The new synthesizer falls back to
-    XTTS-v2 then silence — it never raises, the pipeline stays alive."""
+    """Language 'xx' has no Coqui model. The synthesizer raises SpeechSynthesisError
+    by default to prevent silent audio fabrication, unless fallback_to_silence=True."""
     with tempfile.TemporaryDirectory() as d:
         out = os.path.join(d, "out.wav")
-        # Mock both _get_tts (XTTS path) and _generate_silence so no ffmpeg needed
         with patch("src.tts.synthesizer._get_tts") as mock_tts, \
              patch("src.tts.synthesizer._generate_silence") as mock_silence:
             mock_tts.side_effect = Exception("XTTS also unavailable")
             mock_silence.side_effect = lambda p, **kw: None
-            result = synthesize_generic("hello", "xx", out)
-            # Graceful degradation: returns output_path even on total failure
+
+            # By default, must raise SpeechSynthesisError rather than pretending success
+            with pytest.raises(SpeechSynthesisError):
+                synthesize_generic("hello", "xx", out)
+
+            # With explicit fallback_to_silence=True for demo/test pipelines
+            result = synthesize_generic("hello", "xx", out, fallback_to_silence=True)
             assert result == out
 
 

@@ -51,8 +51,12 @@ async def submit_job(
         raise HTTPException(status_code=422, detail=str(e))
 
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
-        content = await video.read()
-        tmp.write(content)
+        # Bounded streaming write in 1MB chunks to prevent memory exhaustion
+        while True:
+            chunk = await video.read(1024 * 1024)
+            if not chunk:
+                break
+            tmp.write(chunk)
         tmp_path = tmp.name
 
     try:
@@ -61,26 +65,39 @@ async def submit_job(
         os.unlink(tmp_path)
         raise HTTPException(status_code=400, detail=str(e))
 
-    duration_minutes = metadata.duration_seconds / 60
-    limit = TIER_LIMITS.get(current_user.tier, 10)
-    used = current_user.minutes_processed_this_month or 0
+    # Accounting: total workload minutes = duration * number of target languages
+    target_count = len(req.target_languages)
+    duration_minutes = metadata.duration_seconds / 60.0
+    workload_minutes = round(duration_minutes * target_count, 2)
 
-    if used + duration_minutes > limit:
+    # Atomic user query with row-level lock to prevent concurrent quota race conditions
+    user = db.query(User).filter(User.id == current_user.id).with_for_update().first()
+    if not user:
+        os.unlink(tmp_path)
+        raise HTTPException(status_code=404, detail="User not found")
+
+    limit = TIER_LIMITS.get(user.tier, 10)
+    used = float(user.minutes_processed_this_month or 0.0)
+
+    if used + workload_minutes > limit:
         os.unlink(tmp_path)
         raise HTTPException(
             status_code=402,
             detail=f"Minute limit exceeded. Used: {used:.1f}/{limit} min. "
-                   f"Video is {duration_minutes:.1f} min."
+                   f"Job requires {workload_minutes:.1f} min ({target_count} target languages)."
         )
 
     job_id = uuid.uuid4()
     s3_key = f"uploads/{job_id}/source{os.path.splitext(video.filename or '.mp4')[1]}"
-    upload_file(tmp_path, s3_key, content_type=video.content_type or "video/mp4")
-    os.unlink(tmp_path)
+    try:
+        upload_file(tmp_path, s3_key, content_type=video.content_type or "video/mp4")
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
     job = Job(
         id=job_id,
-        user_id=current_user.id,
+        user_id=user.id,
         status=JobStatus.queued,
         source_language=req.source_language,
         target_languages=req.target_languages,
@@ -94,14 +111,22 @@ async def submit_job(
     )
     db.add(job)
 
-    # Update user usage
-    current_user.minutes_processed_this_month = (
-        (current_user.minutes_processed_this_month or 0) + int(duration_minutes)
-    )
+    # Update user usage with floating-point precision
+    user.minutes_processed_this_month = round(used + workload_minutes, 2)
     db.commit()
 
-    process_job.delay(str(job_id))
-    log.info("job_submitted", job_id=str(job_id), user=str(current_user.id))
+    try:
+        process_job.delay(str(job_id))
+    except Exception as e:
+        log.error("celery_dispatch_failed", job_id=str(job_id), error=str(e))
+        job.status = JobStatus.failed
+        job.error_message = f"Job dispatch failed: {e}"
+        user.minutes_processed_this_month = round(used, 2)
+        db.commit()
+        raise HTTPException(status_code=500, detail="Failed to dispatch processing job to worker queue")
+
+    log.info("job_submitted", job_id=str(job_id), user=str(user.id), workload_minutes=workload_minutes)
+
 
     return {
         "job_id": str(job_id),

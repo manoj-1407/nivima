@@ -135,7 +135,8 @@ def main():
         step(3, total_steps, f"Transcribing {args.source} speech with Faster-Whisper")
         from src.transcription.asr import segments_to_dict, transcribe_audio, unload_asr_model
 
-        segments = transcribe_audio(speech_path, language=args.source)
+        segments = transcribe_audio(speech_path, language=args.source, allow_synthetic_demo=True)
+
         seg_dicts = segments_to_dict(segments)
         total_words = sum(len(s["words"]) for s in seg_dicts)
         print(f"  [OK] {len(segments)} segments transcribed (~{total_words} words)")

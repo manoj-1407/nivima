@@ -79,10 +79,16 @@ def unload_asr_model():
     log.info("asr_model_unloaded")
 
 
+class TranscriptionError(Exception):
+    """Raised when ASR speech recognition fails."""
+    pass
+
+
 def transcribe_audio(
     audio_path: str,
     language: str | None = None,
-    chunk_offset_ms: int = 0
+    chunk_offset_ms: int = 0,
+    allow_synthetic_demo: bool = False,
 ) -> list[TranscriptSegment]:
     try:
         model = _get_model()
@@ -98,8 +104,13 @@ def transcribe_audio(
         log.info("transcription_language_detected",
                  lang=detected_lang,
                  confidence=round(info.language_probability, 3))
-    except (ImportError, ModuleNotFoundError, Exception) as e:
-        log.warning("faster_whisper_unavailable_fallback", error=str(e))
+    except (ImportError, ModuleNotFoundError) as e:
+        if not allow_synthetic_demo:
+            raise TranscriptionError(
+                f"Faster-Whisper runtime is unavailable: {e}. "
+                "Install faster-whisper or pass allow_synthetic_demo=True."
+            ) from e
+        log.warning("faster_whisper_demo_fallback_active", error=str(e))
         import soundfile as sf
         dur_ms = 8000
         try:
@@ -142,6 +153,10 @@ def transcribe_audio(
                 ]
             )
         ]
+    except Exception as e:
+        log.error("transcription_failed", error=str(e), path=audio_path)
+        raise TranscriptionError(f"Speech transcription failed: {e}") from e
+
 
 
 

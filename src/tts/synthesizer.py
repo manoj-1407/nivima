@@ -103,16 +103,28 @@ def _get_or_create_reference_voice(output_dir: str) -> str:
     return ref_path
 
 
-def synthesize_generic(text: str, language: str, output_path: str) -> str:
+class SpeechSynthesisError(Exception):
+    """Raised when speech synthesis fails."""
+    pass
+
+
+def synthesize_generic(
+    text: str,
+    language: str,
+    output_path: str,
+    fallback_to_silence: bool = False,
+) -> str:
     """
     Synthesize text in target language using best available model.
-    Priority: (1) Coqui VITS per-lang → (2) XTTS-v2 → (3) silence fallback.
+    Priority: (1) Coqui VITS per-lang → (2) XTTS-v2 → (3) SpeechSynthesisError (or silence if fallback_to_silence=True).
     """
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
     if not text.strip():
         _generate_silence(output_path, duration_seconds=0.5)
         return output_path
+
+    last_error: Exception | None = None
 
     # Tier 1: use per-language Coqui VITS if available for this language
     model_name = INDIC_TTS_MODELS.get(language)
@@ -123,6 +135,7 @@ def synthesize_generic(text: str, language: str, output_path: str) -> str:
             log.debug("tts_generic_done", lang=language, model=model_name)
             return output_path
         except Exception as e:
+            last_error = e
             log.warning("tts_indic_model_failed",
                         lang=language, error=str(e),
                         fallback="xtts_v2")
@@ -142,12 +155,20 @@ def synthesize_generic(text: str, language: str, output_path: str) -> str:
         log.debug("tts_xtts_fallback_done", lang=language, xtts_lang=xtts_lang)
         return output_path
     except Exception as e:
-        log.error("tts_xtts_failed", lang=language, error=str(e), fallback="silence")
+        last_error = e
+        log.error("tts_xtts_failed", lang=language, error=str(e))
 
-    # Tier 3: silence — never crash the pipeline
-    _generate_silence(output_path, duration_seconds=1.0)
-    log.warning("tts_using_silence_fallback", lang=language)
-    return output_path
+    # Tier 3: silence ONLY if explicitly allowed for offline test runs
+    if fallback_to_silence:
+        _generate_silence(output_path, duration_seconds=1.0)
+        log.warning("tts_using_silence_fallback", lang=language)
+        return output_path
+
+    raise SpeechSynthesisError(
+        f"Speech synthesis failed for language '{language}': {last_error}. "
+        "Set fallback_to_silence=True to accept silent audio during offline demo runs."
+    )
+
 
 
 def synthesize_cloned(

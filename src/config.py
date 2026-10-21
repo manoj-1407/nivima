@@ -48,10 +48,25 @@ class Settings(BaseSettings):
     gpu_available: bool = _detect_cuda()
     gpu_device: str = _detect_device()
 
+    allowed_origins: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000"
+    ]
+
     log_level: str = "INFO"
     environment: str = "development"
+
+    def validate_production_security(self) -> None:
+        if self.environment == "production":
+            if "default_jwt_secret" in self.jwt_secret or len(self.jwt_secret) < 32:
+                raise ValueError("Insecure default JWT secret cannot be used in production environment.")
 
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    s = Settings()
+    s.validate_production_security()
+    return s
+
